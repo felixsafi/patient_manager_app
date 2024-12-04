@@ -1,5 +1,6 @@
 import sys
 from clinic.gui.main_menu_gui_controller import mmgController
+from clinic.gui.patient_table_model import PatientTableModel #import the patient table model class
 from PyQt6.QtCore import Qt, QAbstractTableModel, pyqtSignal
 from PyQt6.QtWidgets import (
         QVBoxLayout,
@@ -87,9 +88,10 @@ class MainMenuGUI(QWidget):
 
                 # #patient table view
                 self.patient_table_view = QTableView()
-                self.patient_table_view.setModel(PatientTableModel(self.viewController.create_table_model()))  # Set the model
-                self.patient_table_view.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)  # Select entire rows
-                self.patient_table_view.setEditTriggers(QTableView.EditTrigger.NoEditTriggers)  # Make table read-only
+                self.patient_model = PatientTableModel(self.controller)
+                self.patient_table_view.setModel(self.patient_model)  # Set the model
+                #self.patient_table_view.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)  # Select entire rows
+                #self.patient_table_view.setEditTriggers(QTableView.EditTrigger.NoEditTriggers)  # Make table read-only
                 MainMenuGUI_layout.addWidget(self.patient_table_view)
 
                 #set up the layout
