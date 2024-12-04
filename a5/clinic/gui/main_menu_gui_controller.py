@@ -31,8 +31,8 @@ class mmgController():
         ]
 
         self.btns_to_enable_on_update = [  # update related button to show
-            self.mmg.save_update,
-            self.mmg.cancel_update,
+            self.mmg.save_create_update_fields_button,
+            self.mmg.cancel_create_update_button
         ]
 
         for button in self.btns_to_disable:
@@ -58,8 +58,7 @@ class mmgController():
 
     def delete_cur_patient(self):
         """delete the current selected patient and refresh the list"""
-        # TODO Delete Logic
-        self.refresh_patient_list_signal.emit("refresh list after deletion")
+        self.refresh_patient_list_signal.emit()
 
     def set_current_patient(self):
         """sets the highlighted row to cur patient"""
