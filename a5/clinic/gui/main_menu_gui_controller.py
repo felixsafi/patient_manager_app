@@ -56,7 +56,7 @@ class mmgController():
         """start appointment"""
         # TODO add notification if no current patient selected and change to take cur patient
         self.controller.set_current_patient(1234567890)
-        self.start_appoint_signal.emit("starting appointment")
+        self.start_appointment_signal.emit("starting appointment")
 
     def delete_cur_patient(self):
         """delete the current selected patient and refresh the list"""
