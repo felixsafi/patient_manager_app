@@ -1,5 +1,3 @@
-import sys
-
 class mmgController():
     def __init__(self, main_menu_gui):
         self.mmg = main_menu_gui
@@ -20,7 +18,7 @@ class mmgController():
 
     def search_patient(self, search_text):
         """search for patient matching query entered"""
-        pass
+        self.mmg.controller.retrieve_patients(search_text) #returns list of patients
 
     def create_update_cur_patient(self):
         """opens the updater and hides other options until edit is saved of cancelled"""
@@ -56,7 +54,7 @@ class mmgController():
         """start appointment"""
         # TODO add notification if no current patient selected and change to take cur patient
         self.controller.set_current_patient(1234567890)
-        self.start_appointment_signal.emit("starting appointment")
+        self.start_appointment_signal.emit()
 
     def delete_cur_patient(self):
         """delete the current selected patient and refresh the list"""
