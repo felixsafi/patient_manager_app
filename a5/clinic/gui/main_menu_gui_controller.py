@@ -1,8 +1,11 @@
+from clinic.exception.illegal_operation_exception import IllegalOperationException
+
 class mmgController():
     def __init__(self, main_menu_gui):
         self.mmg = main_menu_gui
         self.connect_signals()
         self.hide_show_buttons_for_update(False)
+        self.create_or_update_bool = None
 
     def connect_signals(self):
         print("running connect signals")
@@ -23,11 +26,10 @@ class mmgController():
         """search for patient matching query entered"""
         self.mmg.controller.retrieve_patients(search_text) #returns list of patients
 
-    def create_update_cur_patient(self, create_update_str):
+    def create_update_cur_patient(self, create_or_update_bool):
         """opens the updater and hides other options until edit is saved of cancelled"""
         self.hide_show_buttons_for_update(True)
-
-        # TODO Logic for updating patient
+        self.create_or_update_bool = create_or_update_bool
 
     def hide_show_buttons_for_update(self, open_close_bool):
         self.btns_to_disable_on_update = [  # buttons to disable while updating
@@ -46,7 +48,7 @@ class mmgController():
             self.mmg.birthday_input,
             self.mmg.phone_input,
             self.mmg.email_input,
-            self.mmg.adress_input,
+            self.mmg.address_input,
         ]
         
         if open_close_bool == True:
@@ -63,6 +65,25 @@ class mmgController():
     def save_cancel_create_update(self, save_cancel_bool):
         """Rehide and Enable buttons after the update is saved or cancelled"""
         self.hide_show_buttons_for_update(False)
+
+        if save_cancel_bool:
+            print("saving")
+            new_phn = self.mmg.phn_input.text
+            new_name = self.mmg.name_input
+            new_birth_date = self.mmg.birthday_input
+            new_phone = self.mmg.phone_input
+            new_email = self.mmg.email_input
+            new_address = self.mmg.address_input
+
+            try:
+                if self.create_or_update_bool:
+                    self.mmg.controller.create_patient(new_phn, new_name, new_birth_date, new_phone, new_email, new_address)
+                else:
+                    self.mmg.controller.update_patient(123, new_phn, new_name, new_birth_date, new_phone, new_email, new_address)
+            except IllegalOperationException as e:
+                print("illegal access")
+        else:
+            print("cancel")
 
     def start_appointment(self):
         """start appointment"""

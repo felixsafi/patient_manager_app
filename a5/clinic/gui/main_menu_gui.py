@@ -18,8 +18,8 @@ class MainMenuGUI(QWidget):
 
         logout_signal_internal = pyqtSignal() #signal to logout
         search_patients_signal = pyqtSignal(str) #searches for term entered, passes str search term
-        create_update_patient_signal = pyqtSignal(str) #open "editor"/"creator" by passing one of these as first arg
-        done_create_update_signal = pyqtSignal(bool ,str, str, str, str, str, str) #send False for cancel and True for save/create
+        create_update_patient_signal = pyqtSignal(bool) #open "editor"/"creator" by passing one of these as first arg
+        done_create_update_signal = pyqtSignal(bool) #send False for cancel and True for save/create
         start_appoint_signal_internal = pyqtSignal() #signal to start appt w cur patient
         delete_patient_signal = pyqtSignal() #delete cur patient
         
@@ -106,8 +106,8 @@ class MainMenuGUI(QWidget):
                 self.phone_input.setPlaceholderText("phone")
                 self.email_input = QLineEdit() #search field
                 self.email_input.setPlaceholderText("email")
-                self.adress_input = QLineEdit() #search field
-                self.adress_input.setPlaceholderText("adress")
+                self.address_input = QLineEdit() #search field
+                self.address_input.setPlaceholderText("address")
                 MainMenuGUI_layout.addLayout(create_update_fields_layout)
 
                 create_update_fields_layout.addWidget(self.phn_input)
@@ -115,7 +115,7 @@ class MainMenuGUI(QWidget):
                 create_update_fields_layout.addWidget(self.birthday_input)
                 create_update_fields_layout.addWidget(self.phone_input)
                 create_update_fields_layout.addWidget(self.email_input)
-                create_update_fields_layout.addWidget(self.adress_input)
+                create_update_fields_layout.addWidget(self.address_input)
 
 
                 # #patient table view
@@ -134,12 +134,12 @@ class MainMenuGUI(QWidget):
         def connect_active_elements(self):
                 self.logout_button.clicked.connect(lambda: self.logout_signal_internal.emit()) #lamda allows non bool signal type
                 self.search_button.clicked.connect(lambda: self.search_patients_signal.emit(self.search_input.text()))
-                self.create_patient_button.clicked.connect(lambda: self.create_update_patient_signal.emit("create"))
-                self.update_patient_button.clicked.connect(lambda: self.create_update_patient_signal.emit("update"))
+                self.create_patient_button.clicked.connect(lambda: self.create_update_patient_signal.emit(True))
+                self.update_patient_button.clicked.connect(lambda: self.create_update_patient_signal.emit(False))
                 self.delete_patient_button.clicked.connect(lambda: self.delete_patient_signal.emit())
                 self.start_appointment_button.clicked.connect(lambda: self.start_appoint_signal_internal.emit())
-                self.cancel_create_update_button.clicked.connect(lambda: self.done_create_update_signal.emit(False, self.phn_input.text(), self.name_input.text(), self.birthday_input.text(), self.phone_input.text(), self.email_input.text(), self.adress_input.text()))
-                self.save_create_update_fields_button.clicked.connect(lambda: self.done_create_update_signal.emit(True, self.phn_input.text(), self.name_input.text(), self.birthday_input.text(), self.phone_input.text(), self.email_input.text(), self.adress_input.text()))
+                self.cancel_create_update_button.clicked.connect(lambda: self.done_create_update_signal.emit(False))
+                self.save_create_update_fields_button.clicked.connect(lambda: self.done_create_update_signal.emit(True))
 
 #self.phn_input.text(), self.name_input.text(), self.birthday_input.text(), self.phone_input.text(), self.email_input.text(), self.adress_input.text()
 

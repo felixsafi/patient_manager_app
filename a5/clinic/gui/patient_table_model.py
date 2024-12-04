@@ -29,16 +29,17 @@ class PatientTableModel(QAbstractTableModel):
             patients = []
         
         
-        #for patient in patients:
-        #    print(patient.name)
-        #    patientlist = []
-        #    patientlist.append(patient.phn)
-        #    patientlist.append(patient.name)
-        #    patientlist.append(patient.birth_date)
-        #    patientlist.append(patient.phone)
-        #    patientlist.append(patient.email)
-        #    patientlist.append(patient.address)
-        #    self._data.append(patientlist)
+        for patient in patients:
+            print(patient.name)
+            patientlist = []
+            patientlist.append(patient.phn)
+            patientlist.append(patient.name)
+            patientlist.append(patient.birth_date)
+            patientlist.append(patient.phone)
+            patientlist.append(patient.email)
+            patientlist.append(patient.address)
+            self._data.append(patientlist)
+
         self._data = [
         ["12345", "Patient 1", "1980/01/01", "123-456-7890", "f", "f"],
         ["67890", "Patient 2", "1990/05/15", "234-567-8901", "f", "f"],
