@@ -2,6 +2,7 @@ class mmgController():
     def __init__(self, main_menu_gui):
         self.mmg = main_menu_gui
         self.connect_signals()
+        self.hide_show_buttons_for_update(False)
 
     def connect_signals(self):
         print("running connect signals")
@@ -10,6 +11,8 @@ class mmgController():
         self.mmg.create_update_patient_signal.connect(self.create_update_cur_patient)
         self.mmg.done_create_update_signal.connect(self.save_cancel_create_update)
         self.mmg.delete_patient_signal.connect(self.delete_cur_patient)
+        self.mmg.start_appoint_signal_internal.connect(self.start_appointment)
+        self.mmg.refresh_patient_list_signal.connect(self.refresh_patient_list)
 
     def logout(self):
         """logout and return to login window"""
@@ -20,8 +23,13 @@ class mmgController():
         """search for patient matching query entered"""
         self.mmg.controller.retrieve_patients(search_text) #returns list of patients
 
-    def create_update_cur_patient(self):
+    def create_update_cur_patient(self, create_update_str):
         """opens the updater and hides other options until edit is saved of cancelled"""
+        self.hide_show_buttons_for_update(True)
+
+        # TODO Logic for updating patient
+
+    def hide_show_buttons_for_update(self, open_close_bool):
         self.btns_to_disable_on_update = [  # buttons to disable while updating
             self.mmg.logout_button,
             self.mmg.create_patient_button,
@@ -32,33 +40,39 @@ class mmgController():
 
         self.btns_to_enable_on_update = [  # update related button to show
             self.mmg.save_create_update_fields_button,
-            self.mmg.cancel_create_update_button
+            self.mmg.cancel_create_update_button,
+            self.mmg.phn_input,
+            self.mmg.name_input,
+            self.mmg.birthday_input,
+            self.mmg.phone_input,
+            self.mmg.email_input,
+            self.mmg.adress_input,
         ]
-
-        for button in self.btns_to_disable:
-            button.setEnabled(False)
-
-        for button in self.btns_to_enable_on_update:
-            button.show()
-
-        # TODO Logic for updating patient
+        
+        if open_close_bool == True:
+            for button in self.btns_to_disable_on_update:
+                button.setEnabled(False)
+            for button in self.btns_to_enable_on_update:
+                button.show()
+        else:
+            for button in self.btns_to_disable_on_update:
+                button.setEnabled(True)
+            for button in self.btns_to_enable_on_update:
+                button.hide()        
 
     def save_cancel_create_update(self, save_cancel_bool):
         """Rehide and Enable buttons after the update is saved or cancelled"""
-        for button in self.btns_to_disable:
-            button.setEnabled(True)
-        for button in self.btns_to_enable_on_update:
-            button.hide()
+        self.hide_show_buttons_for_update(False)
 
     def start_appointment(self):
         """start appointment"""
         # TODO add notification if no current patient selected and change to take cur patient
-        self.controller.set_current_patient(1234567890)
-        self.start_appointment_signal.emit()
+        self.mmg.controller.set_current_patient(1234567890)
+        self.mmg.start_appoint_signal.emit()
 
     def delete_cur_patient(self):
         """delete the current selected patient and refresh the list"""
-        self.refresh_patient_list_signal.emit()
+        self.mmg.refresh_patient_list_signal.emit()
 
     def set_current_patient(self):
         """sets the highlighted row to cur patient"""
