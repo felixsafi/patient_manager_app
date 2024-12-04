@@ -86,11 +86,11 @@ class MainMenuGUI(QWidget):
                 MainMenuGUI_layout.addLayout(patient_function_buttons_layout)
 
                 # #patient table view
-                # self.patient_table_view = QTableView()
-                # self.patient_table_view.setModel(PatientTableModel(self.viewController.create_table_model()))  # Set the model
-                # self.patient_table_view.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)  # Select entire rows
-                # self.patient_table_view.setEditTriggers(QTableView.EditTrigger.NoEditTriggers)  # Make table read-only
-                # MainMenuGUI_layout.addWidget(self.patient_table_view)
+                self.patient_table_view = QTableView()
+                self.patient_table_view.setModel(PatientTableModel(self.viewController.create_table_model()))  # Set the model
+                self.patient_table_view.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)  # Select entire rows
+                self.patient_table_view.setEditTriggers(QTableView.EditTrigger.NoEditTriggers)  # Make table read-only
+                MainMenuGUI_layout.addWidget(self.patient_table_view)
 
                 #set up the layout
                 main_widget = QWidget() #Create class widgit
