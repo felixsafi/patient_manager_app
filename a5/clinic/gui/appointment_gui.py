@@ -34,3 +34,4 @@ class AppointmentGUI(QWidget):
 
     def exit_appointment(self):
             self.exit_appointment_signal.emit("exit appointment") 
+            #TODO unset cur patient when exiting - self.mmg.controller.unset_current_patient() #remove any current patient to allow edit methods to run

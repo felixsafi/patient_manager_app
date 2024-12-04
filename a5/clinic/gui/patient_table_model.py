@@ -15,6 +15,7 @@ class PatientTableModel(QAbstractTableModel):
         self.refresh_data()
 
     def refresh_data(self):
+        self.beginResetModel()
         self._data = []
         # TODO: Call the controller.list_patients().
         # With the results, build a matrix as a list of lists.
@@ -24,13 +25,12 @@ class PatientTableModel(QAbstractTableModel):
 
         try:
             patients = self.controller.list_patients()
-            print(patients)
+            # print(patients)
         except IllegalAccessException as e:
             patients = []
         
         
         for patient in patients:
-            print(patient.name)
             patientlist = []
             patientlist.append(patient.phn)
             patientlist.append(patient.name)
@@ -40,21 +40,16 @@ class PatientTableModel(QAbstractTableModel):
             patientlist.append(patient.address)
             self._data.append(patientlist)
 
-        self._data = [
-        ["12345", "Patient 1", "1980/01/01", "123-456-7890", "f", "f"],
-        ["67890", "Patient 2", "1990/05/15", "234-567-8901", "f", "f"],
-        ["54321", "Patient 3", "1975/08/25", "345-678-9012", "f", "f"],
-        ["98765", "Patient 4", "2000/12/30", "456-789-0123", "f", "f"],
-        ]
-
-
         # emit the layoutChanged signal to alert the QTableView of model changes
-        self.layoutChanged.emit()
+        # self.layoutChanged.emit()
+        self.endResetModel()
 
     def reset(self):
+        self.beginResetModel()
         self._data = []
         # emit the layoutChanged signal to alert the QTableView of model changes
-        self.layoutChanged.emit()
+        # self.layoutChanged.emit()
+        self.endResetModel()
 
     def data(self, index, role):
         value = self._data[index.row()][index.column()]

@@ -12,6 +12,9 @@ from PyQt6.QtWidgets import (
 )
 class MainMenuGUI(QWidget):
         #class signals
+        error_notification_signal = pyqtSignal(str) #for displaying an error message
+        success_notification_signal = pyqtSignal(str) #for displaying a success op message
+
         refresh_patient_list_signal = pyqtSignal() #updates the table to refelect current data
         logout_signal = pyqtSignal()
         start_appoint_signal = pyqtSignal()
@@ -122,8 +125,8 @@ class MainMenuGUI(QWidget):
                 self.patient_table_view = QTableView()
                 self.patient_model = PatientTableModel(self.controller)
                 self.patient_table_view.setModel(self.patient_model)  # Set the model
-                #self.patient_table_view.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)  # Select entire rows
-                #self.patient_table_view.setEditTriggers(QTableView.EditTrigger.NoEditTriggers)  # Make table read-only
+                self.patient_table_view.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)  # Select entire rows
+                self.patient_table_view.setEditTriggers(QTableView.EditTrigger.NoEditTriggers)  # Make table read-only
                 MainMenuGUI_layout.addWidget(self.patient_table_view)
 
                 #set up the layout

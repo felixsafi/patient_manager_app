@@ -30,7 +30,7 @@ def login_required_dec(func):
     return inner_wrapper  # return result of the inner wraper func
 
 class Controller:
-    def __init__(self, autosave=False):
+    def __init__(self, autosave=False, gui=False):
         # read from users.txt file and store each user in self.users dict
         self.autosave = autosave #persistance on/off (bool)
         self.users_login_data_dict = self.get_login_info()
