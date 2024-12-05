@@ -19,6 +19,7 @@ class mmgController():
         self.mmg.delete_patient_signal.connect(self.delete_cur_patient)
         self.mmg.start_appoint_signal_internal.connect(self.start_appointment)
         self.mmg.refresh_patient_list_signal.connect(self.refresh_patient_list)
+        self.mmg.patient_selected_signal.connect(self.set_selected_patient)
 
     def logout(self):
         """logout and return to login window"""
@@ -31,15 +32,15 @@ class mmgController():
         new_field_texts = []
         if instruction_text == "selected":
             new_field_texts = [
-                self.selected_patient.phn, 
+                str(self.selected_patient.phn), 
                 self.selected_patient.name, 
-                self.selected_patient.birthday,
+                self.selected_patient.birth_date,
                 self.selected_patient.phone,
                 self.selected_patient.email,
-                self.selected_patient.adress
+                self.selected_patient.address
                 ]
         else:
-            new_field_texts = ["phn", "name", "DD/MM/YYYY", "Phone Number", "Email", "Adress"]
+            new_field_texts = ["phn", "name", "DD/MM/YYYY", "Phone Number", "Email", "Address"]
 
         i = 0
         for field in self.fields_to_change:
@@ -49,7 +50,7 @@ class mmgController():
 
     def search_patient(self, search_text):
         """search for patient matching query entered"""
-        self.mmg.controller.retrieve_patients(search_text) #returns list of patients
+        self.refresh_patient_list(self.mmg.controller.retrieve_patients(search_text)) #returns list of patients
 
     def create_update_cur_patient(self, new_patient_bool):
         """
@@ -58,7 +59,6 @@ class mmgController():
         Args:
             new_patient_bool: true - create patient, false - not new patient (i.e update patient)
         """
-        self.set_selected_patient()
         if new_patient_bool or (self.selected_patient is not None):
             if new_patient_bool: #update placeholder for new patient or update patient
                 (self.update_field_change_forms("new"))
@@ -130,10 +130,10 @@ class mmgController():
         if update_create_saved_bool :#update/create paitent and fill blanks with default values
             new_phn = self.mmg.phn_input.text() or (self.selected_patient.phn if (self.selected_patient is not None) else "") or (self.gen_new_phn())
             new_name = self.mmg.name_input.text() or (self.selected_patient.name if (self.selected_patient is not None) else "") or "no name provided"
-            new_birth_date = self.mmg.birthday_input.text() or (self.selected_patient.birthday if (self.selected_patient is not None) else "") or "00/00/0000"
+            new_birth_date = self.mmg.birthday_input.text() or (self.selected_patient.birth_date if (self.selected_patient is not None) else "") or "00/00/0000"
             new_phone = self.mmg.phone_input.text() or (self.selected_patient.phone if (self.selected_patient is not None) else "") or "no phone provided"
             new_email = self.mmg.email_input.text() or (self.selected_patient.email if (self.selected_patient is not None) else "") or "no email provided"
-            new_address = self.mmg.address_input.text() or (self.selected_patient.text if (self.selected_patient is not None) else "") or "no adress provided"
+            new_address = self.mmg.address_input.text() or (self.selected_patient.address if (self.selected_patient is not None) else "") or "no address provided"
 
             try:
                 if self.new_patient_bool:
@@ -159,47 +159,40 @@ class mmgController():
 
     def start_appointment(self):
         """start appointment"""
-        # TODO 
-        self.set_selected_patient()
         if self.selected_patient is None:
             self.mmg.error_notification_signal.emit("please select a patient before starting an appointment")
         else:
-            self.mmg.controller.set_current_patient(1234567890)
-            self.success_notification_signal.emit(f"appointment started {self.mmg.controller.get_current_patient.name()}")
+            self.mmg.controller.set_current_patient(self.selected_patient.phn)
+            self.mmg.success_notification_signal.emit(f"appointment started with {self.mmg.controller.get_current_patient().name}")
             self.mmg.start_appoint_signal.emit()
 
     def delete_cur_patient(self):
         """delete the current selected patient and refresh the list"""
-        self.set_selected_patient()
         if self.selected_patient is None:
             self.mmg.error_notification_signal.emit("please select a patient to delete")
         else:
+            self.mmg.controller.delete_patient(self.selected_patient.phn)
             self.mmg.success_notification_signal.emit(f"{self.selected_patient.name} removed and list updated")
-            self.mmg.controller.delete_patient(self.selected_patient_phn)
             self.mmg.refresh_patient_list_signal.emit()
 
     def set_selected_patient(self):
         """sets the highlighted row to cur patient"""
         
         # Get the selection model
-        selection_model = self.mmg.patient_table_view.selectionModel()
-        if selection_model.hasSelection():# check if row selected
-            selected_row = self.mmg.patient_model.selectedRows()[0].row()  # Get the first selected row
-            phn = self.patient_model.index(selected_row, 0).data()  #get phn from that row
-            self.selected_patient = self.controller.search_patient(phn)
-        else:
-            print("No row selected")
-            return None
+        selected_patient_from_gui = self.mmg.patient_view.selectionModel().selectedRows()
+        selected_row_num = selected_patient_from_gui[0].row()
+        selected_phn = self.mmg.patient_model.index(selected_row_num, 0).data()  #get phn from that row
+        self.selected_patient = self.mmg.controller.search_patient(selected_phn)
 
     def gen_new_phn(self):
         phn_length = 8 
-        new_phn = len(self.mmg.controller.list_patients) + 1 #start phn num at num patients + 1
+        new_phn = len(self.mmg.controller.list_patients()) + 1 #start phn num at num patients + 1
         phn_found = False
         formatted_phn = f"{new_phn:0{phn_length}d}"
 
         counter = 0
         while phn_found == False: #while no available phn found    
-            if self.controller.search_patient(formatted_phn) is None: #if phn available
+            if self.mmg.controller.search_patient(formatted_phn) is None: #if phn available
                 phn_found = True
             elif counter > 99999999:
                 raise SufferingFromSuccess
@@ -207,9 +200,12 @@ class mmgController():
                 counter +=1
                 new_phn += 1
                 formatted_phn = f"{new_phn:0{phn_length}d}"
+        
+        return formatted_phn
 
-    def refresh_patient_list(self):
-        self.mmg.patient_model.refresh_data()
+    def refresh_patient_list(self, list_to_update_to=None):
+        """updates to current list oF all patients or to a curated list if one is passeD"""
+        self.mmg.patient_model.refresh_data() if list_to_update_to is None else self.mmg.patient_model.refresh_data(list_to_update_to)
 
 class SufferingFromSuccess(Exception):
 	''' Clinic doing to well, time to retire '''

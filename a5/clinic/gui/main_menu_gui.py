@@ -25,6 +25,7 @@ class MainMenuGUI(QWidget):
         done_create_update_signal = pyqtSignal(bool) #send False for cancel and True for save/create
         start_appoint_signal_internal = pyqtSignal() #signal to start appt w cur patient
         delete_patient_signal = pyqtSignal() #delete cur patient
+        patient_selected_signal = pyqtSignal() #when a row with a patient is selected
         
         def __init__(self, controller):
                 super().__init__()
@@ -38,25 +39,34 @@ class MainMenuGUI(QWidget):
 
                 MainMenuGUI_layout = QVBoxLayout() #Primary layout is VBox
 
-                #logout Button
-                self.logout_button = QPushButton("Logout")
-                self.logout_button.setStyleSheet("padding-right: 0px; text-align: center; margin-left: 300px;")
-                MainMenuGUI_layout.addWidget(self.logout_button)
+                #top bar buttons
+                top_bar_layout = QHBoxLayout()
+                
+                self.refresh_button = QPushButton("\u21BB") #refresh_button
+                self.refresh_button.setToolTip("Refresh List: Implements Changes") #show tip when hovering on this
+                self.refresh_button.setObjectName("regularButton") #use style from the clinic_gui
+                top_bar_layout.addWidget(self.refresh_button)
+
+                self.logout_button = QPushButton("Logout") #logout button
+                self.logout_button.setObjectName("navBarTextButton") #use style from the clinic_gui
+                top_bar_layout.addWidget(self.logout_button)
+
+                MainMenuGUI_layout.addLayout(top_bar_layout)
 
                 #heading and subheading
-                heading = QLabel("Patient Management Tools")
-                heading.setStyleSheet("font-size: 20px; font-weight: bold;")
+                mm_heading = QLabel("Patient Management Tools")
+                mm_heading.setObjectName("Heading1") #use style from the clinic_gui
 
                 subheading0 = QLabel("Highlight patient by clicking on the row")
-                subheading0.setStyleSheet("font-size: 14px;")
+                subheading0.setObjectName("Heading2") #use style from the clinic_gui
 
                 subheading1 = QLabel("Click start appointment to view / edit their files")
-                subheading1.setStyleSheet("font-size: 12px;")  
+                subheading1.setObjectName("Heading3") #use style from the clinic_gui 
 
                 subheading2 = QLabel("Click update to display the editor - hit save or cancel when done making changes")
-                subheading2.setStyleSheet("font-size: 12px;")                    
+                subheading2.setObjectName("Heading3") #use style from the clinic_gui                  
                 
-                MainMenuGUI_layout.addWidget(heading)
+                MainMenuGUI_layout.addWidget(mm_heading)
                 MainMenuGUI_layout.addWidget(subheading0)
                 MainMenuGUI_layout.addWidget(subheading1)
                 MainMenuGUI_layout.addWidget(subheading2)
@@ -65,10 +75,13 @@ class MainMenuGUI(QWidget):
                 search_bar_layout = QHBoxLayout() #horizontal layour for seach bar and button
 
                 self.search_input = QLineEdit() #search field
-                self.search_input.setPlaceholderText("Search patient list...") #placeholder for search field
-                self.search_button = QPushButton("Search")
-                search_bar_layout.addWidget(self.search_input)
+                self.search_input.setPlaceholderText("Search for patient name...") #placeholder for search field
+                self.search_input.setObjectName("bigTextField") #use style from the clinic_gui
+                self.search_button = QPushButton("\u2315") #set to a search icon
+                self.search_button.setToolTip("search for matching name: case sensative") #show tip when hovering on this
+                self.search_button.setObjectName("iconButton") #use style from the clinic_gui
                 search_bar_layout.addWidget(self.search_button)
+                search_bar_layout.addWidget(self.search_input)
                 MainMenuGUI_layout.addLayout(search_bar_layout)
 
                 #patient function buttons, and add them to the layout
@@ -102,6 +115,7 @@ class MainMenuGUI(QWidget):
                 self.phn_input = QLineEdit() #phn field
                 self.phn_input.setPlaceholderText("phn")
                 self.name_input = QLineEdit() #name field
+                
                 self.name_input.setPlaceholderText("name")
                 self.birthday_input = QLineEdit() #birthday
                 self.birthday_input.setPlaceholderText("birthday")
@@ -122,12 +136,15 @@ class MainMenuGUI(QWidget):
 
 
                 # #patient table view
-                self.patient_table_view = QTableView()
+                self.patient_view = QTableView()
                 self.patient_model = PatientTableModel(self.controller)
-                self.patient_table_view.setModel(self.patient_model)  # Set the model
-                self.patient_table_view.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)  # Select entire rows
-                self.patient_table_view.setEditTriggers(QTableView.EditTrigger.NoEditTriggers)  # Make table read-only
-                MainMenuGUI_layout.addWidget(self.patient_table_view)
+                self.patient_view.setModel(self.patient_model)  # Set the model
+
+                self.patient_view.setSelectionMode(QTableView.SelectionMode.SingleSelection)#can only select one row at a time
+                self.patient_view.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)# highlights entire row when clicked
+                self.patient_view.setEditTriggers(QTableView.EditTrigger.NoEditTriggers)  # Make table read-only
+
+                MainMenuGUI_layout.addWidget(self.patient_view) #add to main layout
 
                 #set up the layout
                 main_widget = QWidget() #Create class widgit
@@ -136,6 +153,7 @@ class MainMenuGUI(QWidget):
 
         def connect_active_elements(self):
                 self.logout_button.clicked.connect(lambda: self.logout_signal_internal.emit()) #lamda allows non bool signal type
+                self.refresh_button.clicked.connect(lambda: self.refresh_patient_list_signal.emit())
                 self.search_button.clicked.connect(lambda: self.search_patients_signal.emit(self.search_input.text()))
                 self.create_patient_button.clicked.connect(lambda: self.create_update_patient_signal.emit(True))
                 self.update_patient_button.clicked.connect(lambda: self.create_update_patient_signal.emit(False))
@@ -143,6 +161,7 @@ class MainMenuGUI(QWidget):
                 self.start_appointment_button.clicked.connect(lambda: self.start_appoint_signal_internal.emit())
                 self.cancel_create_update_button.clicked.connect(lambda: self.done_create_update_signal.emit(False))
                 self.save_create_update_fields_button.clicked.connect(lambda: self.done_create_update_signal.emit(True))
+                self.patient_view.selectionModel().selectionChanged.connect(lambda: self.patient_selected_signal.emit())
 
 #self.phn_input.text(), self.name_input.text(), self.birthday_input.text(), self.phone_input.text(), self.email_input.text(), self.adress_input.text()
 

@@ -25,8 +25,8 @@ class LoginGUI(QWidget):
                 loginGUI_layout.setSpacing(20) #space out elements
 
                 #Instructions Label
-                instructions_label = QLabel("Welcome back! Log in to clinic manager")
-                instructions_label.setStyleSheet("font-size: 18px; font-weight: bold; color: Black;")
+                instructions_label = QLabel("Welcome back! Log in to the clinic manager")
+                instructions_label.setObjectName("Heading1") #use style from the clinic_gui
                 
                 #Create Username Field
                 self.user_name_field = QLineEdit()
@@ -36,10 +36,11 @@ class LoginGUI(QWidget):
                 self.password_field = QLineEdit()
                 self.password_field.setEchoMode(QLineEdit.EchoMode.Password)
                 self.password_field.setPlaceholderText("Password")
-                
+
                 #create login Button
                 login_button = QPushButton("Login to App")
                 login_button.clicked.connect(self.attempt_login)
+                
 
                 #add items to the layout
                 loginGUI_layout.addWidget(instructions_label)
@@ -58,7 +59,6 @@ class LoginGUI(QWidget):
                 password = self.password_field.text()
 
                 try: #attempt to login
-                        print("try to login")
                         self.controller.login(username, password) #pass creds to controller to check
                         self.login_success_signal.emit("logged in") #if success
                 

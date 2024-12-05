@@ -14,7 +14,7 @@ class PatientTableModel(QAbstractTableModel):
         self._data = []
         self.refresh_data()
 
-    def refresh_data(self):
+    def refresh_data(self, passed_list=None):
         self.beginResetModel()
         self._data = []
         # TODO: Call the controller.list_patients().
@@ -24,7 +24,7 @@ class PatientTableModel(QAbstractTableModel):
         
 
         try:
-            patients = self.controller.list_patients()
+            patients = self.controller.list_patients() if (passed_list is None) else passed_list
             # print(patients)
         except IllegalAccessException as e:
             patients = []

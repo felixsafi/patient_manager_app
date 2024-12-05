@@ -44,7 +44,6 @@ class resetAndAddContent():
             for x in range(10): #add 10 random notes from the list
                 random_number = random.randint(0, 49)
                 self.controller.create_note(patient_notes[random_number])
-            self.controller
 
 def main():
     user_input = None
