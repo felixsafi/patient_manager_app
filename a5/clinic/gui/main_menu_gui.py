@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
         QHBoxLayout,
         QSpacerItem,
         QSizePolicy,
+        QHeaderView,
 )
 
 class MainMenuGUI(QWidget):
@@ -32,7 +33,7 @@ class MainMenuGUI(QWidget):
         
         def __init__(self, controller):
                 super().__init__()
-                self.user = "1"
+                self.current_user = "default" #set to default on init 
                 self.controller = controller#set reference to controller
                 self.create_layout()#set up the gui
                 self.connect_active_elements()#set up active elements to emit correct signals
@@ -47,7 +48,7 @@ class MainMenuGUI(QWidget):
                 top_bar_layout = QHBoxLayout()
 
                 #Logged in as label
-                self.logged_in_label = QLabel(f"Logged in as: {self.user}")#label for logged-in user
+                self.logged_in_label = QLabel("Logged in")#label for logged-in user
                 self.logged_in_label.setObjectName("h2")#use style from clinic_gui
                 top_bar_layout.addWidget(self.logged_in_label, alignment=Qt.AlignmentFlag.AlignLeft)
 
@@ -76,13 +77,13 @@ class MainMenuGUI(QWidget):
                 mm_heading = QLabel("Patient Management Tools")
                 mm_heading.setObjectName("h1")#use style from clinic_gui
 
-                subheading0 = QLabel("Highlight patient by clicking on the row")
+                subheading0 = QLabel("Highlight patient by clicking anywhere on the row")
                 subheading0.setObjectName("h2")#use style from clinic_gui
 
                 subheading1 = QLabel("Click start appointment to view / edit their files")
                 subheading1.setObjectName("h3")#use style from clinic_gui
 
-                subheading2 = QLabel("Click update to display the editor - hit save or cancel when done making changes")
+                subheading2 = QLabel("Click update/create to display the editor - then save or cancel when done making changes")
                 subheading2.setObjectName("h3")#use style from clinic_gui
 
                 MainMenuGUI_layout.addWidget(mm_heading)
@@ -180,6 +181,9 @@ class MainMenuGUI(QWidget):
                 self.patient_view.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)#highlights entire row when clicked
                 self.patient_view.setEditTriggers(QTableView.EditTrigger.NoEditTriggers)#make table read-only
                 self.patient_view.setObjectName("dataTable")
+
+                # self.table_hor_size = self.patient_view.horizontalHeader()
+                # self.table_hor_size.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
                 MainMenuGUI_layout.addWidget(self.patient_view)
 

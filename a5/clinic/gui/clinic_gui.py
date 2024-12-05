@@ -55,6 +55,7 @@ class ClinicGUI(QMainWindow):
     def run_main_menu_page(self):
         self.main_menu_gui.refresh_patient_list_signal.emit()
         self.setWindowTitle("Main Menu Page") #Set main window title
+        self.main_menu_gui.logged_in_label.setText(f"<span style='color : {self.design_ref_dict["secondaryText"]};'>logged in as:</span> {self.login_gui.current_user_logged_in}") #set the user name that logged in
         self.controller.unset_current_patient() #remove cur patient at start for page to work
         self.main_window_layout.setCurrentWidget(self.main_menu_gui)
         self.adjustSize() #Adjust size to fit the widgets
@@ -73,15 +74,15 @@ class ClinicGUI(QMainWindow):
             "secondaryText": "#B4B4B4",
 
             "primaryButtonCol": "#10A37F",
-            "primaryButtonHov": "#0E8C6F",
-            "primaryButtonPress": "#0C735F",
+            "primaryButtonHov": "#0C735F",
+            "primaryButtonPress": "#454545",
 
             "secondaryButtonCol": "#3E8FB0",
             "secondaryButtonHov": "#357C98",
             "secondaryButtonPress": "#2B6A81",
 
-            "navButtonCol": "#1A1A1A",
-            "navButtonHov": "#2D2D2D",
+            "navButtonCol": "#2D2D2D",
+            "navButtonHov": "#CCCCCC",
             "navButtonPress": "#383838",
             "navButtonText": "#F1F1F1",
 

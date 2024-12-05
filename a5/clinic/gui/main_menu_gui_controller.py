@@ -110,12 +110,12 @@ class mmgController():
         
         if open_update_menu_bool == True: #show/disable appropriate buttons to update/create a patient
             for button in self.btns_to_disable_on_update:
-                button.setEnabled(False)
+                button.hide()
             for button in self.btns_to_enable_on_update:
                 button.show()
         else: #hide/re-enable buttons after updating
             for button in self.btns_to_disable_on_update:
-                button.setEnabled(True)
+                button.show()
             for button in self.btns_to_enable_on_update:
                 button.hide()        
 

@@ -1,5 +1,6 @@
 import sys
 from PyQt6.QtCore import Qt, QAbstractTableModel
+from PyQt6.QtWidgets import QHeaderView
 
 from clinic.controller import Controller
 from clinic.patient import Patient
@@ -84,6 +85,7 @@ class PatientTableModel(QAbstractTableModel):
 
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
         headers = ['Personal Health Number', 'Name', 'Birth Date', 'Phone', 'Email', 'Address']
+        headers.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         if orientation == Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
             return '%s' % headers[section]
         return super().headerData(section, orientation, role)

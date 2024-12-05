@@ -7,7 +7,6 @@ from PyQt6.QtWidgets import(
         QLineEdit,
         QLabel,
         QWidget,
-        QGridLayout,
         QPushButton,
 )
 class LoginGUI(QWidget):
@@ -18,6 +17,7 @@ class LoginGUI(QWidget):
                 super().__init__()
                 self.controller = controller #ref to controller
                 self.create_layout() #set up the gui
+                self.current_user_logged_in = None
 
         def create_layout(self):
                 loginGUI_layout = QVBoxLayout() #create a grid-style layout for the login page
@@ -60,13 +60,16 @@ class LoginGUI(QWidget):
                 username = self.user_name_field.text()
                 password = self.password_field.text()
 
+                self.current_user_logged_in = None # reset current user
+
                 #clear fields
                 self.user_name_field.clear()
                 self.password_field.clear()
 
                 try: #attempt to login
                         self.controller.login(username, password) #pass creds to controller to check
-                        self.login_success_signal.emit("a") #if success
+                        self.current_user_logged_in = username
+                        self.login_success_signal.emit("logged in successfully") #if success
                 
                 except InvalidLoginException as e: #catch and deal with failed attempt
                         self.login_failed_signal.emit("Invalid Credentials Entered") #emit if wrong creds
