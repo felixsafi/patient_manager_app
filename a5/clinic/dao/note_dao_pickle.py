@@ -31,29 +31,16 @@ class NoteDAOPickle(NoteDAO):
         """
         try:
             if phn is not None:
-                # File path for the patient's notes
-                self.file_path = f"clinic/records/{phn}.dat"
+                #info for accessing files
+                self.file_path = f"clinic/records/{phn}.dat" #set filename to the correct patient if one exists
                 
                 with open(self.file_path, 'rb') as file:
-                    #Load notes and update note count from file
-                    loaded_notes = load(file)
-                    self.notes = {int(k): Note.from_dict(v) for k, v in loaded_notes.items()}
+                    #set the notes dictionary and counter from the file
+                    self.notes = load(file)
                     self.note_count = len(self.notes)
         except FileNotFoundError:
             #create notes in memory if file not found
             self.notes = {}
-        # try:
-        #     if phn is not None:
-        #         #info for accessing files
-        #         self.file_path = f"clinic/records/{phn}.dat" #set filename to the correct patient if one exists
-                
-        #         with open(self.file_path, 'rb') as file:
-        #             #set the notes dictionary and counter from the file
-        #             self.notes = load(file)
-        #             self.note_count = len(self.notes)
-        # except FileNotFoundError:
-        #     #create notes in memory if file not found
-        #     self.notes = {}
 
     def search_note(self, note_number):
         """return the value for the given note num or None if ivalid key"""
@@ -72,9 +59,10 @@ class NoteDAOPickle(NoteDAO):
         new_note = Note(self.note_count, text)
         self.notes[self.note_count] = new_note
 
-        #Save file after creating a new note
+        # save file after creating a new note
         if self.autosave:
-            self.save_to_file()
+            with open(self.file_path, 'wb') as file:
+                dump(self.notes, file)
         return new_note
 
     def retrieve_notes(self, search_string):
@@ -89,47 +77,35 @@ class NoteDAOPickle(NoteDAO):
     def update_note(self, note_number, text):
         """update the note if possible"""
         existing_note = self.search_note(note_number)
-        if existing_note:
+        if existing_note is not None:
+            #update each value
             existing_note.update_note(text)
-            # Save file after updating the note
-            if self.autosave:
-                self.save_to_file()
-            return True
-        return False
-        # existing_note = self.search_note(note_number)
-        # if existing_note is not None:
-        #     #update each value
-        #     existing_note.update_note(text)
             
-        #     # save file after updating patient
-        #     if self.autosave:
-        #         with open(self.file_path, 'wb') as file:
-        #             dump(self.notes, file)
-        #     return True
-        # else:
-        #     return False
+            # save file after updating patient
+            if self.autosave:
+                with open(self.file_path, 'wb') as file:
+                    dump(self.notes, file)
+            return True
+        else:
+            return False
    
     def delete_note(self, note_number):
         """delete the note if possible"""
-        if note_number in self.notes:
-            del self.notes[note_number]
-            # Save file after deleting the note
+        element = self.search_note(note_number)
+        if element:
+            self.notes[note_number] = None
+            # save file after deleting patient
             if self.autosave:
-                self.save_to_file()
+                with open(self.file_path, 'wb') as file:
+                    dump(self.notes, file)
             return True
-        return False
-
+        else:
+            return False
     
     def list_notes(self):
         """return a list of all the notes"""
-        return sorted(self.notes.values(), reverse=True)
-    
-    def save_to_file(self):
-        """saves notes in the correct format"""
-        if self.file_path:
-            with open(self.file_path, 'wb') as file:
-                # Serialize notes as a dictionary
-                serialized_notes = {
-                    str(k): v.to_dict() for k, v in self.notes.items()
-                }
-                dump(serialized_notes, file)
+        notes_retrieved_list = []
+        for item in self.notes.keys():
+            if (self.notes[item] is not None):
+                notes_retrieved_list.append(self.notes[item])
+        return list(reversed(notes_retrieved_list))

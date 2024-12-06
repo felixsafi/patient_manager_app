@@ -53,10 +53,7 @@ class MainMenuGUI(QWidget):
                 self.logged_in_label.setObjectName("h2")#use style from clinic_gui
                 top_bar_layout.addWidget(self.logged_in_label, alignment=Qt.AlignmentFlag.AlignLeft)
 
-                #aligns the logout and refresh buttons
-                space_menu = QWidget()
-                space_menu.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
-                top_bar_layout.addWidget(space_menu)
+                
 
                 #add fake patient data
                 self.add_fake_patients = QPushButton("populate with fake patients")#logout button

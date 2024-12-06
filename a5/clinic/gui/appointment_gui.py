@@ -10,8 +10,7 @@ from PyQt6.QtWidgets import (
         QSpacerItem,
         QSizePolicy,
 )
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QTextCursor, QTextCharFormat, QColor
+from PyQt6.QtCore import Qt, pyqtSignal, QScrollArea
 
 class AppointmentGUI(QWidget):
         exit_appointment_signal = pyqtSignal()
