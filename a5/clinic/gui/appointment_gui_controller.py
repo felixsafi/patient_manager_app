@@ -15,24 +15,16 @@ class agController():
         self.ag.list_notes_signal.connect(self.refresh_notes)
         self.ag.create_note_signal.connect(self.create_note)
     
+    
+
     def refresh_notes(self):
         """get notes from contoller and update the view"""
-        try:
-            notes = self.ag.controller.list_notes()  #get notes list frm controller
-            notes_sorted = sorted(notes, reverse=True) #sort them by the time stamp
+        self.ag.appointmentGUI_layout.removeWidget(self.ag.notes_view)
+        self.ag.notes_view.deleteLater()
 
-            #store original notes list before any edits
-            self.og_notes = {note.note_number: note.text for note in notes_sorted}
-
-            self.ag.notes_view.clear() #clear view
-
-            for note in notes_sorted: #add all notes to the display
-                self.add_note_to_display(note)
-
-            self.ag.notes_view.setReadOnly(False)  # Allow editing
-
-        except Exception as e: #for any problems
-            print(f"erorr loading notes")
+        # Create a new notes section and add it to the layout
+        self.ag.notes_view = self.ag.create_notes_section()
+        self.ag.appointmentGUI_layout.addWidget(self.ag.notes_view)
 
     def add_note_to_display(self, note):
         """

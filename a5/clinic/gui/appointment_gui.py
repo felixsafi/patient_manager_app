@@ -1,4 +1,5 @@
 from clinic.gui.appointment_gui_controller import agController
+from clinic.note import Note
 from PyQt6.QtWidgets import (
         QVBoxLayout,
         QHBoxLayout,
@@ -9,8 +10,10 @@ from PyQt6.QtWidgets import (
         QPushButton,
         QSpacerItem,
         QSizePolicy,
+        QFrame,
+        QScrollArea
 )
-from PyQt6.QtCore import Qt, pyqtSignal, QScrollArea
+from PyQt6.QtCore import Qt, pyqtSignal
 
 class AppointmentGUI(QWidget):
         exit_appointment_signal = pyqtSignal()
@@ -25,11 +28,16 @@ class AppointmentGUI(QWidget):
 
         def __init__(self, controller):
                 super().__init__()
+                self.note_inputs = {}
                 self.controller = controller#set reference to controller
                 self.current_patient = "patient name" #TODO get cur patient note name
                 self.create_layout()#set up the gui
                 self.connect_active_elements()#set up active elements to emit correct signals
                 self.viewController = agController(self)#create/initialize view controller class
+
+                self.notes = []
+                self.common_words = []
+
                 
 
         def create_layout(self):
@@ -74,19 +82,15 @@ class AppointmentGUI(QWidget):
                 self.create_note_button = QPushButton("Create Note")
                 self.create_note_button.setObjectName("primaryButton")  # Style for primary button
 
-                self.save_button = QPushButton("Save Notes")
+                self.save_button = QPushButton("Save Note Changes")
                 self.save_button.setObjectName("primaryButton")
 
-                self.delete_note_button = QPushButton("Delete Note")
-                self.delete_note_button.setObjectName("primaryButton")
-
-                self.list_all_notes_button = QPushButton("List All Notes")
+                self.list_all_notes_button = QPushButton("Refresh")
                 self.list_all_notes_button.setObjectName("primaryButton")
 
                 # Add buttons to the layout
                 note_function_buttons_layout.addWidget(self.create_note_button)
                 note_function_buttons_layout.addWidget(self.save_button)
-                note_function_buttons_layout.addWidget(self.delete_note_button)
                 note_function_buttons_layout.addWidget(self.list_all_notes_button)
                 appointmentGUI_layout.addLayout(note_function_buttons_layout)
 
@@ -96,8 +100,7 @@ class AppointmentGUI(QWidget):
                 notes_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
                 appointmentGUI_layout.addWidget(notes_label)
 
-                self.notes_view = QPlainTextEdit()  # Display for notes
-                self.notes_view.setReadOnly(False)  # Allow editing
+                self.notes_view = self.create_notes_view()
                 appointmentGUI_layout.addWidget(self.notes_view)
 
                 self.setLayout(appointmentGUI_layout)
@@ -107,7 +110,84 @@ class AppointmentGUI(QWidget):
                 #self.refresh_button.clicked.connect(lambda: self.refresh_note_list_signal.emit())#refresh signal
                 self.return_button.clicked.connect(lambda: self.exit_appointment_signal.emit()) #exit back to main menu
                 self.create_note_button.clicked.connect(lambda: self.create_note_signal.emit())
-                self.delete_note_button.clicked.connect(lambda: self.delete_note_signal.emit())
                 self.list_all_notes_button.clicked.connect(lambda: self.list_notes_signal.emit())
                 self.search_button.clicked.connect(lambda: self.search_notes_signal.emit(self.search_input.text()))
                 self.save_button.clicked.connect(lambda: self.save_notes_signal.emit())
+
+        def create_notes_view(self):
+                """
+                Create a styled, scrollable section for notes.
+                """
+                # Scroll area
+                scroll_area = QScrollArea()
+                scroll_area.setWidgetResizable(True)
+                scroll_area.setStyleSheet("background-color: #f5f5f5; border: none;")
+
+                # Container widget inside the scroll area
+                container = QWidget()
+                container_layout = QVBoxLayout(container)
+                container_layout.setSpacing(10)
+
+                # Add each note dynamically
+                self.notes = []
+                if self.controller.login_status:
+                        self.notes = self.controller.list_notes()
+                else:
+                        self.notes = [(Note(1, "example note")), (Note("2", "example_note"))]
+                        
+
+                for Anote in self.notes:
+                        # Note container
+                        note_frame = QFrame()
+                        note_frame.setStyleSheet("""
+                                QFrame {
+                                border: 1px solid #cccccc;
+                                border-radius: 5px;
+                                background-color: #ffffff;
+                                padding: 10px;
+                                }
+                        """)
+                        note_frame_layout = QHBoxLayout(note_frame)
+
+                        # Note input (editable text)
+                        note_input = QLineEdit(Anote.text)
+                        note_input.setStyleSheet("""
+                                QLineEdit {
+                                border: 1px solid #dddddd;
+                                border-radius: 3px;
+                                padding: 5px;
+                                font-size: 14px;
+                                }
+                                QLineEdit:focus {
+                                border-color: #3399ff;
+                                }
+                        """)
+                        self.note_inputs[Anote.note_number] = note_input  # Track QLineEdit by note ID
+                        note_frame_layout.addWidget(note_input, stretch=1)
+
+                        # Delete button
+                        delete_button = QPushButton("🗑")  # Trash icon (Unicode)
+                        delete_button.setStyleSheet("""
+                                QPushButton {
+                                background-color: transparent;
+                                color: #e74c3c;
+                                border: none;
+                                font-size: 18px;
+                                }
+                                QPushButton:hover {
+                                color: #c0392b;
+                                }
+                        """)
+                        delete_button.clicked.connect(lambda _, nid=Anote.note_number: self.controller.delete_note(nid))
+                        note_frame_layout.addWidget(delete_button)
+
+                        # Add frame to the container layout
+                        container_layout.addWidget(note_frame)
+
+                # Spacer to push content to the top
+                container_layout.addStretch()
+
+                # Set container as the scroll area widget
+                scroll_area.setWidget(container)
+
+                return scroll_area

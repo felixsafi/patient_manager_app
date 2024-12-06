@@ -371,3 +371,7 @@ class Controller:
             return self.patient_record.search_note(note_number)
         else: 
             raise NoCurrentPatientException 
+        
+    @login_required_dec
+    def common_words(self):
+        return self.patient_record.common_words
