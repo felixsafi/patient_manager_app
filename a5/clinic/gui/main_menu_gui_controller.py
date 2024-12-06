@@ -1,14 +1,20 @@
+#imports to run the generate fake patients
+import os
+import stat
+
 from clinic.exception.illegal_operation_exception import IllegalOperationException
 from clinic.patient import Patient
+from clinic.gui import reset_pop_info
 
 class mmgController():
     def __init__(self, main_menu_gui):
         self.mmg = main_menu_gui #ref to the main_menu_gui
         self.connect_signals() #connect signal to methods
-        self.create_widgit_lists() #create lists for buttons to show/hide for methods
+        self.create_widgit_lists() #create lists for view controlling
         self.hide_show_buttons_for_update(False) #precautionary button hide reset on init
         self.new_patient_bool = True #true-create patient, false-update patient
         self.selected_patient = None #var for the currently selected patient
+        self.ensure_valid_permissions
 
     def connect_signals(self):
         """connect button singals to correct methods"""
@@ -20,6 +26,7 @@ class mmgController():
         self.mmg.start_appoint_signal_internal.connect(self.start_appointment)
         self.mmg.refresh_patient_list_signal.connect(self.refresh_patient_list)
         self.mmg.patient_selected_signal.connect(self.set_selected_patient)
+        self.mmg.populate_fake_patients_signal.connect(self.fake_patient_data)
 
     def logout(self):
         """logout and return to login window"""
@@ -28,7 +35,7 @@ class mmgController():
         self.mmg.logout_signal.emit()
 
     def update_field_change_forms(self, instruction_text):
-        """updates placeholder text"""
+        """updates placeholder text, and removes the old text"""
         new_field_texts = []
         if instruction_text == "selected":
             new_field_texts = [
@@ -44,7 +51,8 @@ class mmgController():
 
         i = 0
         for field in self.fields_to_change:
-            field.setPlaceholderText(new_field_texts[i])
+            field.setPlaceholderText(new_field_texts[i]) #set placeholder text to current string
+            field.clear() #clear any old text that was left there
             i+=1
 
 
@@ -60,9 +68,9 @@ class mmgController():
             new_patient_bool: true - create patient, false - not new patient (i.e update patient)
         """
         if new_patient_bool or (self.selected_patient is not None):
-            if new_patient_bool: #update placeholder for new patient or update patient
+            if new_patient_bool: #update placeholder for making a new patient
                 (self.update_field_change_forms("new"))
-            else: 
+            else:  #update the placeholder text for updating an existing patient
                 (self.update_field_change_forms("selected"))
 
             self.hide_show_buttons_for_update(True) #show create/update buttons
@@ -127,14 +135,17 @@ class mmgController():
         args: 
             updated_create_saved_bool: true - save, false - cancel
         """
-        if update_create_saved_bool :#update/create paitent and fill blanks with default values
+        
+
+        if update_create_saved_bool:#update/create paitent and fill blanks with default values
+            #make sure either blank or valid phn entered
+            
             new_phn = self.mmg.phn_input.text() or (self.selected_patient.phn if (self.selected_patient is not None) else "") or (self.gen_new_phn())
             new_name = self.mmg.name_input.text() or (self.selected_patient.name if (self.selected_patient is not None) else "") or "no name provided"
             new_birth_date = self.mmg.birthday_input.text() or (self.selected_patient.birth_date if (self.selected_patient is not None) else "") or "00/00/0000"
             new_phone = self.mmg.phone_input.text() or (self.selected_patient.phone if (self.selected_patient is not None) else "") or "no phone provided"
             new_email = self.mmg.email_input.text() or (self.selected_patient.email if (self.selected_patient is not None) else "") or "no email provided"
             new_address = self.mmg.address_input.text() or (self.selected_patient.address if (self.selected_patient is not None) else "") or "no address provided"
-
             try:
                 if self.new_patient_bool:
                     self.mmg.controller.create_patient(new_phn, new_name, new_birth_date, new_phone, new_email, new_address)
@@ -156,6 +167,7 @@ class mmgController():
                 )
         self.hide_show_buttons_for_update(False)
         self.update_field_change_forms("clear")
+        self.mmg.refresh_patient_list_signal.emit()
 
     def start_appointment(self):
         """start appointment"""
@@ -165,6 +177,8 @@ class mmgController():
             self.mmg.controller.set_current_patient(self.selected_patient.phn)
             self.mmg.success_notification_signal.emit(f"appointment started with {self.mmg.controller.get_current_patient().name}")
             self.mmg.start_appoint_signal.emit()
+
+
 
     def delete_cur_patient(self):
         """delete the current selected patient and refresh the list"""
@@ -188,7 +202,7 @@ class mmgController():
         phn_length = 8 
         new_phn = len(self.mmg.controller.list_patients()) + 1 #start phn num at num patients + 1
         phn_found = False
-        formatted_phn = f"{new_phn:0{phn_length}d}"
+        formatted_phn = int(f"{new_phn:0{phn_length}d}")
 
         counter = 0
         while phn_found == False: #while no available phn found    
@@ -207,5 +221,38 @@ class mmgController():
         """updates to current list oF all patients or to a curated list if one is passeD"""
         self.mmg.patient_model.refresh_data() if list_to_update_to is None else self.mmg.patient_model.refresh_data(list_to_update_to)
 
+    def fake_patient_data(self, create_delete_bool=False):
+        """"creates or removes fake patinets"""
+        if create_delete_bool: 
+            self.mmg.add_fake_patients.setEnabled(False)
+            self.mmg.remove_fake_patients.setEnabled(True)
+        else:
+            self.mmg.add_fake_patients.setEnabled(True)
+            self.mmg.remove_fake_patients.setEnabled(False)
+
+        reset_pop_info.main(create_delete_bool, self.mmg.controller) #run create or remove
+        self.mmg.success_notification_signal.emit("fake patients added/removed successfully")
+        self.mmg.refresh_patient_list_signal.emit()
+
+    def ensure_valid_permissions(self):
+        """
+        check for the add fake patients script and attempt to add them
+        referenced: https://ismailtasdelen.medium.com/setting-chmod-value-with-python-7e14daaf09b3#:~:text=To%20set%20the%20permissions%20of,expressed%20as%20an%20octal%20number.&text=The%20octal%20number%200o644%20represents,rw%2Dr%2D%2Dr%2D%2D.
+        """
+        try: 
+            self.mmg.add_fake_patients.setEnabled(True)
+            self.mmg.remove_fake_patients.setEnabled(False)
+            script_file = 'clinic/gui/reset_pop_info.py'
+            script_file_exists = os.path.exists(script_file)
+            if script_file_exists: # Check if the file is already executable and try to add permission if not
+                current_permissions = os.stat("").st_mode #get cur permissions
+                if not (current_permissions & stat.S_IXUSR):  # Check if user execute bit is set
+                    # Add execute permissions for the user, group, and others
+                    os.chmod(os.chmod("clinic/gui/reset_pop_info.py", stat.st_mode | stat.S_IXUSR | stat.S_IRUSR | stat.S_IWUSR))
+        except:
+            self.mmg.error_notification_signal.emit("error loading the fake patients function - buttons disabled")
+            self.mmg.add_fake_patients.setEnabled(False)
+            self.mmg.remove_fake_patients.setEnabled(False)
+
 class SufferingFromSuccess(Exception):
-	''' Clinic doing to well, time to retire '''
+	''' Clinic doing too well, time to retire '''

@@ -37,7 +37,9 @@ class PatientDAOJSON(PatientDAO):
 
     def search_patient(self, key):
         """search for a patient and return them if they exist"""
-        # unordered list requests a linear search
+        #nordered list requests a search
+        if self.patients is None:
+            return None
         for element in self.patients:
             if (element.phn == key):
                 return element
@@ -57,10 +59,13 @@ class PatientDAOJSON(PatientDAO):
 
     def retrieve_patients(self, search_string):
         retrieved = []
-        for element in self.patients:
-            if search_string in element.name:
-                retrieved.append(element)
-        return retrieved
+        if self.patients is not None:
+            for element in self.patients:
+                if search_string in element.name:
+                    retrieved.append(element)
+            return retrieved
+        else:
+            return []
 
     def update_patient(self, key, patient):
         """update patient if possible"""
@@ -109,7 +114,14 @@ class PatientDAOJSON(PatientDAO):
                 with open(self.filename, 'w') as file:
                     json.dump(self.patients, file, cls=PatientEncoder)
             return True
-    
+        
+    def delete_all_patients(self):
+        self.patients = []
+
+        if self.autosave:
+            with open(self.filename, 'w') as file:
+                json.dump(self.patients, file, cls=PatientEncoder)
+
     def list_patients(self):
         """return a list of patients"""
         patients_list = []

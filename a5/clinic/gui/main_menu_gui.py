@@ -20,8 +20,9 @@ class MainMenuGUI(QWidget):
         success_notification_signal = pyqtSignal(str)#for displaying a success op message
 
         refresh_patient_list_signal = pyqtSignal()#updates the table to refelect current data
-        logout_signal = pyqtSignal()
-        start_appoint_signal = pyqtSignal()
+        logout_signal = pyqtSignal() #logout and go back to login screens
+        start_appoint_signal = pyqtSignal() #switch to the appt window
+        populate_fake_patients_signal = pyqtSignal(bool)
 
         logout_signal_internal = pyqtSignal()#signal to logout
         search_patients_signal = pyqtSignal(str)#searches for term entered, passes str search term
@@ -52,16 +53,27 @@ class MainMenuGUI(QWidget):
                 self.logged_in_label.setObjectName("h2")#use style from clinic_gui
                 top_bar_layout.addWidget(self.logged_in_label, alignment=Qt.AlignmentFlag.AlignLeft)
 
-                #Spacer to align buttons to the right
-                spacer = QWidget()
-                spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
-                top_bar_layout.addWidget(spacer)
+                #aligns the logout and refresh buttons
+                space_menu = QWidget()
+                space_menu.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+                top_bar_layout.addWidget(space_menu)
+
+                #add fake patient data
+                self.add_fake_patients = QPushButton("populate with fake patients")#logout button
+                self.add_fake_patients.setObjectName("nav")#style as a primary button
+                self.add_fake_patients.setFixedHeight(40)#ensure consistent height with refresh button
+                top_bar_layout.addWidget(self.add_fake_patients)
+
+                self.remove_fake_patients = QPushButton("remove all patient")#logout button
+                self.remove_fake_patients.setObjectName("nav")#style as a primary button
+                self.remove_fake_patients.setFixedHeight(40)#ensure consistent height with refresh button
+                top_bar_layout.addWidget(self.remove_fake_patients)
+
 
                 #Refresh button
                 self.refresh_button = QPushButton("\u21BB")#refresh button
-                self.refresh_button.setToolTip("Refresh List: Implements Changes")#show tip when hovering
+                self.refresh_button.setToolTip("Refreshes the patients List")#show tip when hovering
                 self.refresh_button.setObjectName("nav")#style as a primary button
-                self.refresh_button.setStyleSheet("font-size: 125;")
                 self.refresh_button.setFixedSize(40, 40)#size
                 top_bar_layout.addWidget(self.refresh_button)
 
@@ -77,13 +89,14 @@ class MainMenuGUI(QWidget):
                 mm_heading = QLabel("Patient Management Tools")
                 mm_heading.setObjectName("h1")#use style from clinic_gui
 
-                subheading0 = QLabel("Highlight patient by clicking anywhere on the row")
+                subheading0 = QLabel("select a patient by clicking anywhere on their row")
+
                 subheading0.setObjectName("h2")#use style from clinic_gui
 
-                subheading1 = QLabel("Click start appointment to view / edit their files")
+                subheading1 = QLabel("Click <span style='color : #ECECEC;'>start appointment</span> to view / edit their files")
                 subheading1.setObjectName("h3")#use style from clinic_gui
 
-                subheading2 = QLabel("Click update/create to display the editor - then save or cancel when done making changes")
+                subheading2 = QLabel("Click<span style='color : #ECECEC;'> update/create </span>to display the editor - then<span style='color : #ECECEC;'> save/cancel </span>when done making changes")
                 subheading2.setObjectName("h3")#use style from clinic_gui
 
                 MainMenuGUI_layout.addWidget(mm_heading)
@@ -182,8 +195,9 @@ class MainMenuGUI(QWidget):
                 self.patient_view.setEditTriggers(QTableView.EditTrigger.NoEditTriggers)#make table read-only
                 self.patient_view.setObjectName("dataTable")
 
-                # self.table_hor_size = self.patient_view.horizontalHeader()
-                # self.table_hor_size.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+                #have the table resize headers and its size to the window size
+                self.patient_view.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+                self.patient_view.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
 
                 MainMenuGUI_layout.addWidget(self.patient_view)
 
@@ -200,3 +214,5 @@ class MainMenuGUI(QWidget):
                 self.cancel_create_update_button.clicked.connect(lambda: self.done_create_update_signal.emit(False))#cancel signal
                 self.save_create_update_fields_button.clicked.connect(lambda: self.done_create_update_signal.emit(True))#save signal
                 self.patient_view.selectionModel().selectionChanged.connect(lambda: self.patient_selected_signal.emit())#row selection signal
+                self.remove_fake_patients.clicked.connect(lambda: self.populate_fake_patients_signal.emit(False)) #signal to remove all patients
+                self.add_fake_patients.clicked.connect(lambda: self.populate_fake_patients_signal.emit(True)) #signal to add fake patient data

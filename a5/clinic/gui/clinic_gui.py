@@ -58,51 +58,46 @@ class ClinicGUI(QMainWindow):
         self.main_menu_gui.logged_in_label.setText(f"<span style='color : {self.design_ref_dict["secondaryText"]};'>logged in as:</span> {self.login_gui.current_user_logged_in}") #set the user name that logged in
         self.controller.unset_current_patient() #remove cur patient at start for page to work
         self.main_window_layout.setCurrentWidget(self.main_menu_gui)
-        self.adjustSize() #Adjust size to fit the widgets
+        self.resize(1000, 700) #Adjust size to fit the widgets
 
     def run_appointment_page(self):
+        self.appointment_gui.viewController.refresh_notes() #refresh notes on opening
         self.setWindowTitle("Appointment Page") #Set main window title
         self.main_window_layout.setCurrentWidget(self.appointment_gui)
         self.adjustSize() #Adjust size to fit the widgets
 
     def create_style_dict(self, size_scale):
         self.design_ref_dict = { 
-            "offGrey": "#383838",
-            "primaryBackgroundGrey": "#212121",
+            "offGrey": "#2C2C2C",
+            "primaryBackgroundGrey": "#1A1A1A",
 
-            "mainText": "#ECECEC",
-            "secondaryText": "#B4B4B4",
+            "mainText": "#E8E8E8",
+            "secondaryText": "#A8A8A8",
 
-            "primaryButtonCol": "#10A37F",
-            "primaryButtonHov": "#0C735F",
-            "primaryButtonPress": "#454545",
+            "primaryButtonCol": "#0B6E5A",
+            "primaryButtonHov": "#095C4C",
+            "primaryButtonPress": "#073E35",
 
-            "secondaryButtonCol": "#3E8FB0",
-            "secondaryButtonHov": "#357C98",
-            "secondaryButtonPress": "#2B6A81",
+            "secondaryButtonCol": "#2B6A81",
+            "secondaryButtonHov": "#235668",
+            "secondaryButtonPress": "#1A4554",
 
-            "navButtonCol": "#2D2D2D",
-            "navButtonHov": "#CCCCCC",
-            "navButtonPress": "#383838",
-            "navButtonText": "#F1F1F1",
+            "navButtonCol": "#1E1E1E",
+            "navButtonHov": "#353535",
+            "navButtonPress": "#2A2A2A",
+            "navButtonText": "#E0E0E0",
 
-            "tableHeaderBg": "#2D2D2D",
-            "tableHeaderText": "#F1F1F1",
-            "tableBg": "#1A1A1A",
-            "tableAltRowBg": "#2A2A2A",
-            "tableText": "#E6E6E6",
-            "tableGrid": "#3E3E3E",
+            "tableHeaderBg": "#252525",
+            "tableHeaderText": "#E0E0E0",
+            "tableBg": "#151515",
+            "tableAltRowBg": "#202020",
+            "tableText": "#E5E5E5",
+            "tableGrid": "#2D2D2D",
 
             "primaryButtonFontSize": 14,
-            "primaryButtonCol": "#10A37F",
-            "primaryButtonHov": "#0E8C6F",
-            "primaryButtonPress": "#0C735F",
             "primaryButtonPadding": 10,
 
             "secondaryButtonFontSize": 14,
-            "secondaryButtonCol": "#3E8FB0",
-            "secondaryButtonHov": "#357C98",
-            "secondaryButtonPress": "#2B6A81",
             "secondaryButtonPadding": 10,
 
             "base_padding": 8,
@@ -151,14 +146,14 @@ class ClinicGUI(QMainWindow):
             "navButtonPressed": self.design_ref_dict["navButtonPress"],
             "navButtonPadding": self.pad_factor(1.8),
 
-            "tableBg": "#1A1A1A",
-            "tableAltRowBg": "#2A2A2A",
-            "tableText": "#E6E6E6",
-            "tableGrid": "#3E3E3E",
-            "tableHeaderBg": "#2D2D2D",
-            "tableHeaderText": "#F1F1F1",
-            "scrollbarHandle": "#3E8FB0",
-            "scrollbarHandleHover": "#357C98",
+            "tableHeaderBg": "#1E1F37",
+            "tableHeaderText": "#E8E8E8",
+            "tableBg": "#14151F",
+            "tableAltRowBg": "#191A26",
+            "tableText": "#F0F0F0",
+            "tableGrid": "#1A2E35",
+            "scrollbarHandle": "#1A2E35",
+            "scrollbarHandleHover": "#14242B"
         }
 
     def font_factor(self, scale_int):
@@ -242,7 +237,7 @@ class ClinicGUI(QMainWindow):
             background-color: {self.element_properties_dict["secondaryButtonPressed"]};
         }}
 
-        QPushButton#navButton{{
+        QPushButton#nav{{
             font-size: {self.element_properties_dict["navButtonFontSize"]}px;
             background-color: {self.element_properties_dict["navButtonColor"]};
             color: {self.design_ref_dict["mainText"]};
@@ -250,10 +245,10 @@ class ClinicGUI(QMainWindow):
             padding: {self.element_properties_dict["navButtonPadding"]}px;
             border: none;
         }}
-        QPushButton#navButton:hover{{
+        QPushButton#nav:hover{{
             background-color: {self.element_properties_dict["navButtonHover"]};
         }}
-        QPushButton#navButton:pressed {{
+        QPushButton#nav:pressed {{
             background-color: {self.element_properties_dict["navButtonPressed"]};
         }}
 

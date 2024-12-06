@@ -5,30 +5,34 @@ import os
 import sys
 import random
 from clinic.controller import Controller
+from clinic.exception.illegal_operation_exception import IllegalOperationException
 
 class resetAndAddContent():
-    def __init__(self, create_bool):
-        self.controller = Controller(autosave=True)
-        self.controller.login("user", "123456")
+    def __init__(self, create_bool, controllerRef):
+        self.controller = controllerRef #ref to contoller from gui
 
-        self.clear_all_old_files()
-        if (create_bool == 1): self.populate_table()
+        self.clear_all_old_files() #remove all old patient files
+
+        #populates table if bool passed, else just deletes files
+        if (create_bool is True):
+            self.populate_table() 
 
     def clear_all_old_files(self):
+        """removes all old files: logic copied from integration tests"""
         patients_file = 'clinic/patients.json'
-        patients_file_exists = os.path.exists(patients_file)
+        patients_file_exists = os.path.isfile(patients_file)
         records_path = 'clinic/records'
+        if patients_file_exists: # delete the info in the patients file
+            self.controller.delete_all_patients() #remove all patients
         if os.path.exists(records_path):
             filenames = os.listdir(records_path)
             for filename in filenames:
                 record_file_path = os.path.join(records_path, filename)
                 if os.path.isfile(record_file_path):
-                    os.remove(record_file_path)
-        # removing the patients file later to avoid concurrency issues
-        if patients_file_exists:
-            os.remove(patients_file)
+                    os.remove(record_file_path)   
 
     def populate_table(self):
+        """create a list of fake paitents and patient data"""
         phns_list = [12345678, 87654321, 23456789, 98765432, 34567890, 76543210, 45678901, 65432109, 56789012, 54321098, 67890123, 43210987, 78901234, 32109876, 89012345, 21098765, 90123456, 10987654, 12349876, 87651234, 23456701, 98760123, 34560198, 76509876, 45671234, 65438901, 56789098, 54321789, 67891234, 43217654, 98765401, 12348765, 23456780, 87650987, 34569876, 76540123, 45678932, 65432087, 56789076, 54321980, 67890321, 43219876, 78901265, 32108976, 89013245, 21097654, 90124356, 10986543, 12347658, 87654320]
         names_list = ["Emma Harrison", "Liam Carter", "Olivia Mitchell", "Noah Bennett", "Ava Brooks", "Ethan Collins", "Sophia Morgan", "Mason Reed", "Isabella Cruz", "Logan Foster", "Mia Parker", "Lucas Rivera", "Charlotte Hayes", "Benjamin Scott", "Amelia Gray", "James Walker", "Harper Lewis", "Elijah Hill", "Evelyn Adams", "Henry Young", "Chloe Peterson", "Alexander Price", "Ella Martinez", "Daniel Cooper", "Grace Turner", "Michael Phillips", "Scarlett Evans", "William King", "Emily Torres", "Jack Fisher", "Lily Ross", "Aiden White", "Victoria Ward", "Samuel Hughes", "Zoe Murphy", "Sebastian Ramirez", "Hannah Kelly", "Matthew Flores", "Abigail Morris", "David Powell", "Aria Cook", "Joseph Sanders", "Natalie Morris", "Ryan Butler", "Layla Griffin", "Gabriel Ross", "Victoria Rivera", "Carter Hayes", "Avery Brooks", "Julian Scott"]
         birthdays_list = ["1995/06/15", "1988/11/23", "2002/03/19", "1990/08/10", "1985/12/30", "1999/04/07", "1992/09/25", "2001/02/14", "1987/07/13", "1993/01/22", "1996/10/05", "1998/05/18", "1984/03/09", "2000/12/11", "1991/08/31", "1994/04/27", "1986/06/09", "1997/11/03", "1989/02/20", "1995/09/06", "1990/01/30", "1988/07/19", "1993/05/25", "1992/10/02", "1994/12/15", "1991/06/28", "2002/08/17", "1987/09/22", "2000/03/05", "1999/11/08", "1998/01/19", "1997/12/14", "1989/04/12", "1995/05/10", "1986/10/21", "1996/08/03", "1990/07/30", "1991/09/12", "1994/03/26", "1987/11/07", "1993/06/24", "1992/02/28", "1988/09/11", "1999/12/04", "2001/07/09", "1998/05/21", "1985/11/18", "2000/06/02", "1997/01/08", "1994/10/27"]
@@ -39,34 +43,21 @@ class resetAndAddContent():
         patient_notes = ["Patient reports mild chest discomfort lasting 15 minutes after exercise.", "No fever or chills, but patient complains of fatigue over the past week.", "Noted slight swelling in the right ankle, likely due to sprain.", "Blood pressure elevated at 145/90; recommend lifestyle adjustments.", "Patient denies any allergies but mentions sensitivity to strong odors.", "Follow-up required for persistent headaches despite current medication.", "Cough persists for two weeks; order chest X-ray to rule out infection.", "Patient is experiencing occasional dizziness when standing up quickly.", "Skin rash noted on left arm, no itching reported.", "Lab results show elevated cholesterol; dietary changes discussed.", "Complains of difficulty sleeping, potentially linked to increased stress.", "Reports recent onset of joint pain in fingers, likely mild arthritis.", "Seasonal allergies worsening; prescribed antihistamines.", "Weight loss of 5 lbs noted since last visit; patient denies intentional dieting.", "Reports nausea and occasional vomiting after meals; order ultrasound.", "No significant changes in diabetes management; continue current plan.", "Patient experiences shortness of breath while climbing stairs.", "Ear pain persists despite initial treatment; prescribed stronger antibiotics.", "Mild fever of 100.2°F reported over the last two days.", "Complains of tingling sensation in right hand; schedule nerve conduction test.", "Reports blurry vision in the evenings; refer to ophthalmologist.", "Mole on upper back appears irregular; biopsy recommended.", "Notes improved mobility following physical therapy for knee injury.", "Patient reports increased thirst and frequent urination; check glucose levels.", "Complains of mild abdominal discomfort after eating spicy food.", "No new symptoms reported; medication refills provided.", "Experiencing intermittent chest tightness; scheduled stress test.", "Patient reports difficulty hearing in left ear; schedule audiogram.", "Frequent heartburn persists; consider endoscopy.", "Patient mentions occasional palpitations; recommend Holter monitor.", "Reports persistent fatigue despite adequate sleep; screen for anemia.", "Minor bruising on left forearm; no history of trauma reported.", "Complains of tension headaches, possibly linked to screen time.", "Blood sugar levels stable; no adjustment to insulin required.", "Experiencing back pain after heavy lifting; recommend physiotherapy.", "Patient denies any recent illness but reports increased hair loss.", "No significant side effects reported from new medication.", "Reports sore throat and swollen glands; rapid strep test ordered.", "Follow-up needed for elevated liver enzymes from last blood test.", "Complains of dry, itchy skin; prescribed hydrating ointment.", "Patient denies smoking but reports occasional vaping.", "Mild swelling in both feet noted; recommend compression stockings.", "Reports difficulty concentrating; assess for potential ADHD.", "X-ray confirms minor fracture in left wrist; splint applied.", "Patient feels generally well but requests flu vaccination.", "Experiencing occasional nosebleeds; check coagulation profile.", "Notes improved sleep after starting melatonin supplement.", "Patient reports increased anxiety; consider therapy referral.", "Mild fever subsided; no further intervention required.", "Complains of loss of appetite; screen for underlying causes."]
 
         for i in range(50): #add all 50 patients
-            self.controller.create_patient(phns_list[i], names_list[i], birthdays_list[i], phone_numbers_list[i], emails_list[i], adresses_list[i])
-            self.controller.set_current_patient(phns_list[i])
-            for x in range(10): #add 10 random notes from the list
-                random_number = random.randint(0, 49)
-                self.controller.create_note(patient_notes[random_number])
+            try:
+                patient = self.controller.create_patient(phns_list[i], names_list[i], birthdays_list[i], phone_numbers_list[i], emails_list[i], adresses_list[i])
+                self.controller.set_current_patient(patient.phn)
+                for x in range(10): #add 10 random notes from the list
+                    random_number = random.randint(0, 49)
+                    self.controller.create_note(patient_notes[random_number])
+            except IllegalOperationException as e:
+                pass
 
-def main():
-    user_input = None
-
-    while True:
-        try:
-            user_input = int(input("Enter 1 to populate files, 0 to just clear, or 3 to exit: "))
-            if user_input == 3:
-                sys.exit(1)
-            if user_input != 1 and user_input !=0:
-                raise ValueError
-            break
-        except ValueError as e:
-            print("invalid input:")
-            print("     -enter 0 to clear files")
-            print("     -or 1 to clear and populate files")
-
-    if user_input==1:
-        resetAndAddContent(True)
-        print("files reset and populated")
+def main(create_bool, controllerRef):
+    """removes old files and populates or populates depending on what was passed"""
+    if create_bool:
+        resetAndAddContent(True, controllerRef)
     else:
-        resetAndAddContent(False)
-        print("files reset")
+        resetAndAddContent(False, controllerRef)
 
 if __name__ == '__main__':
-    main()
+    main(create_bool=False, controllerRef=None)

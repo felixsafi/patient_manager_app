@@ -193,6 +193,9 @@ class Controller:
             return self.patientDAO.delete_patient(phn)
         except IllegalOperationException as e:
             raise
+    @login_required_dec
+    def delete_all_patients(self):
+        self.patientDAO.delete_all_patients()
 
     @login_required_dec
     def list_patients(self):
