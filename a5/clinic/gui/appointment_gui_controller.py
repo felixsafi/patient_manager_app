@@ -19,14 +19,16 @@ class agController():
         #self.ag.create_note_signal.connect(self.create_note) #
 
     def setUp(self, passed_list=None):
-        if passed_list is None: #not list passed
-            self.ag.list_of_notes = self.get_notes_from_file()
+        if passed_list is None: #no list passed
+            self.get_notes_from_file()
         else:
-            self.ag.list_of_notes = []
+            self.ag.list_of_notes = passed_list
 
     def get_notes_from_file(self):
         if self.controller.login_status: #skip dynamic set up on initial creating to prevent error
                 self.ag.list_of_notes = self.controller.list_notes()
+    
+            
 
     def list_all(self):
         """refresh view and unpdate to the current list of notes"""
