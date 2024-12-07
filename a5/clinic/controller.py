@@ -112,7 +112,7 @@ class Controller:
 
     #PATIENTS METHODS
     @login_required_dec
-    def search_patient(self, search_phn): 
+    def search_patient(self, search_name): 
         """
         Pass the phn to the DAO to search for the patient
         Args:
@@ -122,7 +122,7 @@ class Controller:
             None: if the patient doesnt exists
         """
 
-        return self.patientDAO.search_patient(search_phn)
+        return self.patientDAO.search_patient(search_name)
 
     @login_required_dec
     def create_patient(self, phn, name, birth_date, phone, email, address):

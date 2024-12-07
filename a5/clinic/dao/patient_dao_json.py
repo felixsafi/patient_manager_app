@@ -41,7 +41,7 @@ class PatientDAOJSON(PatientDAO):
         if self.patients is None:
             return None
         for element in self.patients:
-            if (element.phn == key):
+            if (str(key) in element.name):
                 return element
         return None
     
