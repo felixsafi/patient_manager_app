@@ -74,6 +74,7 @@ class AppointmentGUI(QWidget):
                 search_bar_layout.addWidget(self.search_input)
                 search_bar_layout.addWidget(self.search_button)
                 self.appointmentGUI_layout.addLayout(search_bar_layout)
+                self.new_note=False
 
                 # Notes display section
                 notes_label = QLabel("Patient Records")
@@ -111,9 +112,9 @@ class AppointmentGUI(QWidget):
                 self.create_note_button.clicked.connect(lambda: self.create_note_signal.emit())
                 self.list_all_notes_button.clicked.connect(lambda: self.list_notes_signal.emit())
                 self.search_button.clicked.connect(lambda: self.search_notes_signal.emit(self.search_input.text()))
-                self.save_button.clicked.connect(lambda: self.save_notes_signal.emit())
+                self.save_button.clicked.connect(lambda: self.save_all_notes_signal.emit())
 
-        def create_notes_view(self):
+        def create_notes_view(self, create=False):
                 """make a scrollable view area with notes added"""
 
                 scrolling_layout = QScrollArea() #scrollable section
@@ -128,8 +129,37 @@ class AppointmentGUI(QWidget):
                 self.edit_field_dictionary.clear()
                 self.delete_buttons_dictionary.clear()
 
-                for each_note in self.list_of_notes: #for all notes in the list
+                if create:
+                        self.new_note = True
+                        cur_note_num = each_note.note_number
 
+                        self.create_frame = QFrame() #frame for design
+                        self.create_frame.setObjectName("noteBox")
+
+                        #vertical holder for label, and actual note
+                        individual_note_layout = QVBoxLayout(self.create_frame)                        
+
+                        #header for note
+                        note_header = QLabel(f"New Note: Enter Text Below") 
+                        note_header.setObjectName("h2") #style as h2
+                        individual_note_layout.addWidget(note_header)
+
+                        #horiz layout for note editor and buttons
+                        note_and_button_layout = QHBoxLayout() 
+
+                        self.notes_to_create_edit_field = QPlainTextEdit() #note editor
+                        self.notes_to_create_edit_field.setPlainText("Enter Note Here") #set text to be the note text
+                        self.notes_to_create_edit_field.setObjectName("regular") #make findable for controler
+                        note_and_button_layout.addWidget(self.notes_to_create_edit_field)
+
+                        individual_note_layout.addLayout(note_and_button_layout)
+                
+                        main_notes_view.addWidget(self.create_frame) #adds the whole frame as widg w eveything in it
+                        self.create_frame.hide()
+
+
+
+                for each_note in self.list_of_notes: #for all notes in the list
                         cur_note_num = each_note.note_number
 
                         self.new_frame = QFrame() #frame for design
@@ -166,20 +196,6 @@ class AppointmentGUI(QWidget):
                 scrolling_layout.setWidget(main_notes_obj) #set scrolling view to display all notes
 
                 return scrolling_layout #returns scrolling layout with everything in it
-
-        
-        # def get_edit_window(self, identifier_num): 
-        #         labels = self.findChildren(QLabel)
-        #         for label in labels: #go through all qlabel objects
-        #                 if label.text() == str(identifier_num): #Check if the label text matches any
-        #                         parent_layout = label.parentWidget().layout() #Get the parent layout of the label
-        #                         if parent_layout: #if it exists
-        #                                 for i in range(parent_layout.count()): #go through all 
-        #                                         widget = parent_layout.itemAt(i).widget()
-        #                                         if isinstance(widget, QPlainTextEdit):
-        #                                                 return widget #return matching plain text edit
-        #         return None  # Return None if not found
         
         def update_view(self):
-                self.appointmentGUI_layout.removeWidget(self.notes_view)
-                self.appointmentGUI_layout.addWidget(self.create_notes_view())
+                print("would update the view here")
