@@ -35,15 +35,23 @@ class PatientDAOJSON(PatientDAO):
             self.patients = [] #else anything else occurs start with empty list
 
 
-    def search_patient(self, key):
+    def search_patient(self, key, internal_search=True):
         """search for a patient and return them if they exist"""
         #nordered list requests a search
-        if self.patients is None:
+        if internal_search:
+            if self.patients is None:
+                return None
+            for element in self.patients:
+                if (element.phn == key):
+                    return element
             return None
-        for element in self.patients:
-            if (str(key) in element.name):
-                return element
-        return None
+        else:
+            if self.patients is None:
+                return None
+            for element in self.patients:
+                if (str(key) in element.name):
+                    return element
+            return None
     
     def create_patient(self, patient):
         """create a patient if possible"""

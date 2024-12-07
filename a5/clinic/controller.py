@@ -122,7 +122,7 @@ class Controller:
             None: if the patient doesnt exists
         """
 
-        return self.patientDAO.search_patient(search_name)
+        return self.patientDAO.search_patient(search_name, True)
 
     @login_required_dec
     def create_patient(self, phn, name, birth_date, phone, email, address):
