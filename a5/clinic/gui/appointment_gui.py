@@ -127,7 +127,7 @@ class AppointmentGUI(QWidget):
                 save_all_button.clicked.connect(self.save_all_notes_signal)  # Connect save all action
                 main_notes_view.addWidget(save_all_button)
 
-                for each_note in self.list_notes: #for all notes in the list
+                for each_note in self.list_of_notes: #for all notes in the list
 
                         layout_for_aesthetics = QFrame() #frame for design
                         layout_for_aesthetics.setObjectName("noteBox")

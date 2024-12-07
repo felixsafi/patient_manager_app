@@ -1,12 +1,10 @@
 from clinic.exception.illegal_operation_exception import IllegalOperationException
 from clinic.note import Note
-from collections import OrderedDict
 
 class agController():
     def __init__(self, apointment_gui):
         self.ag = apointment_gui #ref to the gui
         self.controller = self.ag.controller #ref to the controller
-        self.ag.notes_list = []
         self.notes_to_delete = []
         self.connect_signals()
         self.setUp()
@@ -20,17 +18,15 @@ class agController():
         self.ag.update_search_signal.connect(self.search_notes) #search for notes
         #self.ag.create_note_signal.connect(self.create_note) #
 
-    def setUp(self, passed_list=[-1]):
-        if passed_list == [-1]: #not list passed
-            self.ag.notes_list = self.get_notes_from_file
+    def setUp(self, passed_list=None):
+        if passed_list is None: #not list passed
+            self.ag.list_of_notes = self.get_notes_from_file()
         else:
-            self.ag.notes_list = passed_list
+            self.ag.list_of_notes = []
 
     def get_notes_from_file(self):
-        if self.controller.login_status and self.controller.get_current_patient() is not None: #skip dynamic set up on initial creating to prevent error
-                self.ag.notes_list = self.controller.list_notes()
-        else: #set to default at the start
-                self.ag.error_notification_signal("error loading notes from file")
+        if self.controller.login_status: #skip dynamic set up on initial creating to prevent error
+                self.ag.list_of_notes = self.controller.list_notes()
 
     def list_all(self):
         """refresh view and unpdate to the current list of notes"""
@@ -38,8 +34,8 @@ class agController():
         self.ag.create_notes_view()
 
     def search_notes(self, search_text):
-        self.ag.notes_list = self.controller.retrieve_notes(search_text)
-        self.setUp(self.ag.notes_list)
+        self.ag.list_of_notes = self.controller.retrieve_notes(search_text)
+        self.setUp(self.ag.list_of_notes)
         self.ag.create_notes_view()
 
     def save_edits_deletes(self):
@@ -54,7 +50,7 @@ class agController():
 
         self.get_notes_from_file #update to get notes list without deleted notes
 
-        for note in self.ag.notes_list: #update all changed notes
+        for note in self.ag.all_notes: #update all changed notes
             note_editor = self.ag.get_edit_window(f"note_text_at({note.note_number})")
             entered_text = note_editor.toPlainText() #normalize text from editor
             if note.text != entered_text:

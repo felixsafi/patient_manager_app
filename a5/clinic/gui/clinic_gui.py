@@ -66,7 +66,7 @@ class ClinicGUI(QMainWindow):
     def run_appointment_page(self):
         #set the user name that logged in
         self.appointment_gui.list_notes_signal.emit()
-        self.appointment_gui.appointment_with_label.setText(f"<span style='color : {self.design_ref_dict["secondaryText"]};'>In appointment with: </span> {self.controller.get_current_patient.name}") 
+        self.appointment_gui.appointment_with_label.setText(f"<span style='color : {self.design_ref_dict["secondaryText"]};'>In appointment with: </span> {self.controller.get_current_patient().name}") 
         self.setWindowTitle("Appointment Page") #Set main window title
         self.main_window_layout.setCurrentWidget(self.appointment_gui)
         self.adjustSize() #Adjust size to fit the widgets
