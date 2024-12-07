@@ -100,9 +100,11 @@ class AppointmentGUI(QWidget):
                 self.appointmentGUI_layout.addLayout(note_function_buttons_layout)
 
                 self.notes_view = self.create_notes_view()
-                self.appointmentGUI_layout.addWidget(self.notes_view)
+                #self.appointmentGUI_layout.addWidget(self.notes_view)
 
                 self.setLayout(self.appointmentGUI_layout)
+
+
 
         def connect_active_elements(self):
                 #self.logout_button.clicked.connect(lambda: self.logout_signal_internal.emit())#logout signal
@@ -115,6 +117,8 @@ class AppointmentGUI(QWidget):
 
         def create_notes_view(self):
                 """make a scrollable view area with notes added"""
+                
+                #scrolling_layout = QLabel("appointment with: defualt")
 
                 scrolling_layout = QScrollArea() #scrollable section
                 scrolling_layout.setWidgetResizable(True) #adjustable for adding many notes
@@ -123,7 +127,7 @@ class AppointmentGUI(QWidget):
                 #main widg for the notes view section
                 main_notes_obj = QWidget() #create widget object for the view
                 main_notes_view = QVBoxLayout(main_notes_obj) 
-                main_notes_view.setSpacing(10) #space out from other elements
+                main_notes_view.setSpacing(40) #space out from other elements
 
                 self.edit_field_dictionary.clear()
                 self.delete_buttons_dictionary.clear()
