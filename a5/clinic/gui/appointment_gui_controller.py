@@ -12,11 +12,10 @@ class agController():
     def connect_signals(self):
         """connect button singals to correct methods"""
         self.ag.search_notes_signal.connect(self.search_notes) #searches for term entered, passes str search term
-        self.ag.save_all_notes_signal.connect(self.save_edits_deletes)  #saves edits if made
-        self.ag.delete_note_signal.connect(self.que_delete_note) #delete cur note
-        self.ag.list_notes_signal.connect(self.list_all) #refreshes all notes, updates view to ALL existing notes
-        self.ag.update_search_signal.connect(self.search_notes) #search for notes
-        #self.ag.create_note_signal.connect(self.create_note) #
+        self.ag.update_search_signal.connect(self.update_note)  #saves edits if made
+        self.ag.delete_note_signal.connect(self.delete_note) #delete cur note
+        self.ag.list_all_notes_signal.connect(self.list_all) #refreshes all notes, updates view to ALL existing notes
+        self.ag.create_note_signal.connect(self.create_note) 
 
     def setUp(self, passed_list=None):
         if passed_list is None: #no list passed
@@ -35,12 +34,13 @@ class agController():
         self.setUp()
         for note in self.ag.list_of_notes:
             print(note)
-
+        self.ag.reset_appt_window_signal.emit()
+        
     def search_notes(self, search_text):
         self.ag.list_of_notes = self.controller.retrieve_notes(search_text)
         print(self.ag.list_of_notes)
 
-    def save_edits_deletes(self):
+    def update_note(self):
         """
         Save any changes made to the notes.
 
@@ -63,9 +63,9 @@ class agController():
             self.ag.create_frame.hide()
             self.controller.create_note(self.ag.notes_to_create_edit_field.text())
 
-        self.list_all()
+        self.list_all
             
-    def que_delete_note(self, note_num_to_delete):
+    def delete_note(self, note_num_to_delete):
         """Delete note given key, refresh the view"""
         print(f"deleting {note_num_to_delete}")
         self.ag.delete_buttons_dictionary[note_num_to_delete].hide()
