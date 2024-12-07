@@ -17,29 +17,25 @@ from PyQt6.QtCore import Qt, pyqtSignal
 
 class AppointmentGUI(QWidget):
         exit_appointment_signal = pyqtSignal()
-        appointment_success_signal = pyqtSignal(str)
-        appointment_error_signal = pyqtSignal(str)
+        success_notification_signal = pyqtSignal(str) #returns error message
+        error_notification_signal = pyqtSignal(str) #retruns messages for opertations complete
 
-        search_notes_signal = pyqtSignal(str)#searches for term entered, passes str search term
-        save_notes_signal = pyqtSignal() #saves edits if made
-        delete_note_signal = pyqtSignal()#delete cur note
-        list_notes_signal = pyqtSignal()
-        create_note_signal = pyqtSignal()
+        update_search_signal = pyqtSignal(str)#searches for term entered
+        save_all_notes_signal = pyqtSignal() #saves edits if made
+        delete_note_signal = pyqtSignal(int) #delete cur note
+        search_notes_signal = pyqtSignal(str)
+        list_notes_signal = pyqtSignal() #update the view to list all notes
+        create_note_signal = pyqtSignal(str) #notify that note was created (send note text)
 
         def __init__(self, controller):
                 super().__init__()
-                self.note_inputs = {}
-                self.controller = controller#set reference to controller
-                self.current_patient = "patient name" #TODO get cur patient note name
+                self.list_of_notes = [Note(0, "test"), Note(2, "test1")]
+                self.controller = controller#set reference to controller 
+                self.viewController = agController(self)#create/initialize view controller class
                 self.create_layout()#set up the gui
                 self.connect_active_elements()#set up active elements to emit correct signals
                 self.viewController = agController(self)#create/initialize view controller class
-
-                self.notes = []
-                self.common_words = []
-
                 
-
         def create_layout(self):
                 """Create the GUI for the appointment Window"""        
                 appointmentGUI_layout = QVBoxLayout()  # Main vertical layout
@@ -48,7 +44,7 @@ class AppointmentGUI(QWidget):
                 nav_bar = QHBoxLayout()
 
                 # Appointment label for logged-in user
-                self.appointment_with_label = QLabel("Logged in")
+                self.appointment_with_label = QLabel("appointment with: defualt")
                 self.appointment_with_label.setObjectName("h2")  # Apply "h2" style
                 nav_bar.addWidget(self.appointment_with_label, alignment=Qt.AlignmentFlag.AlignLeft)
 
@@ -115,79 +111,73 @@ class AppointmentGUI(QWidget):
                 self.save_button.clicked.connect(lambda: self.save_notes_signal.emit())
 
         def create_notes_view(self):
-                """
-                Create a styled, scrollable section for notes.
-                """
-                # Scroll area
-                scroll_area = QScrollArea()
-                scroll_area.setWidgetResizable(True)
-                scroll_area.setStyleSheet("background-color: #f5f5f5; border: none;")
+                """make a scrollable view area with notes added"""
 
-                # Container widget inside the scroll area
-                container = QWidget()
-                container_layout = QVBoxLayout(container)
-                container_layout.setSpacing(10)
+                scrolling_layout = QScrollArea() #scrollable section
+                scrolling_layout.setWidgetResizable(True) #adjustable for adding many notes
+                scrolling_layout.setObjectName("notesView") #name for styling purposes
 
-                # Add each note dynamically
-                self.notes = []
-                if self.controller.login_status:
-                        self.notes = self.controller.list_notes()
-                else:
-                        self.notes = [(Note(1, "example note")), (Note("2", "example_note"))]
-                        
+                #main widg for the notes view section
+                main_notes_obj = QWidget() #create widget object for the view
+                main_notes_view = QVBoxLayout(main_notes_obj) 
+                main_notes_view.setSpacing(10) #space out from other elements
 
-                for Anote in self.notes:
-                        # Note container
-                        note_frame = QFrame()
-                        note_frame.setStyleSheet("""
-                                QFrame {
-                                border: 1px solid #cccccc;
-                                border-radius: 5px;
-                                background-color: #ffffff;
-                                padding: 10px;
-                                }
-                        """)
-                        note_frame_layout = QHBoxLayout(note_frame)
+                save_all_button = QPushButton("Save All")
+                save_all_button.setObjectName("primaryButton")
+                save_all_button.clicked.connect(self.save_all_notes_signal)  # Connect save all action
+                main_notes_view.addWidget(save_all_button)
 
-                        # Note input (editable text)
-                        note_input = QLineEdit(Anote.text)
-                        note_input.setStyleSheet("""
-                                QLineEdit {
-                                border: 1px solid #dddddd;
-                                border-radius: 3px;
-                                padding: 5px;
-                                font-size: 14px;
-                                }
-                                QLineEdit:focus {
-                                border-color: #3399ff;
-                                }
-                        """)
-                        self.note_inputs[Anote.note_number] = note_input  # Track QLineEdit by note ID
-                        note_frame_layout.addWidget(note_input, stretch=1)
+                for each_note in self.list_notes: #for all notes in the list
 
-                        # Delete button
-                        delete_button = QPushButton("🗑")  # Trash icon (Unicode)
-                        delete_button.setStyleSheet("""
-                                QPushButton {
-                                background-color: transparent;
-                                color: #e74c3c;
-                                border: none;
-                                font-size: 18px;
-                                }
-                                QPushButton:hover {
-                                color: #c0392b;
-                                }
-                        """)
-                        delete_button.clicked.connect(lambda _, nid=Anote.note_number: self.controller.delete_note(nid))
-                        note_frame_layout.addWidget(delete_button)
+                        layout_for_aesthetics = QFrame() #frame for design
+                        layout_for_aesthetics.setObjectName("noteBox")
 
-                        # Add frame to the container layout
-                        container_layout.addWidget(note_frame)
+                        #vertical holder for label, and actual note
+                        individual_note_layout = QVBoxLayout(layout_for_aesthetics) 
 
-                # Spacer to push content to the top
-                container_layout.addStretch()
+                        #hidden identifier to locate elements
+                        identifier = QLabel(f"{each_note.note_number}")
+                        individual_note_layout.addWidget(identifier)
+                        identifier.hide() #hide identifier
 
-                # Set container as the scroll area widget
-                scroll_area.setWidget(container)
+                        #header for note
+                        note_header = QLabel(f"Note {each_note.note_number} Last Edited: {each_note.timestamp}") 
+                        note_header.setObjectName("h2") #style as h2
+                        individual_note_layout.addWidget(note_header)
 
-                return scroll_area
+                        #horiz layout for note editor and buttons
+                        note_and_button_layout = QHBoxLayout() 
+
+                        note_editor = QPlainTextEdit() #note editor
+                        note_editor.setPlainText(each_note.text) #set text to be the note text
+                        note_editor.setObjectName(f"note_text_at({each_note.note_number})") #make findable for controler
+                        note_and_button_layout.addWidget(note_editor)
+
+                        delete_button = QPushButton("delete")
+                        delete_button.setObjectName("primaryButton") #styling
+                        delete_button.clicked.connect(lambda: self.delete_note_signal.emit(each_note.note_number)) #sends delete signal with note number
+                        note_and_button_layout.addWidget(delete_button) #add to h layout
+
+                        individual_note_layout.addLayout(note_and_button_layout)
+
+                        main_notes_view.addWidget(layout_for_aesthetics) #adds the whole frame as widg w eveything in it
+
+                
+                main_notes_view.addStretch() #aligning
+
+                scrolling_layout.setWidget(main_notes_obj) #set scrolling view to display all notes
+
+                return scrolling_layout #returns scrolling layout with everything in it
+
+        
+        def get_edit_window(self, identifier_num): 
+                labels = self.findChildren(QLabel)
+                for label in labels: #go through all qlabel objects
+                        if label.text() == str(identifier_num): #Check if the label text matches any
+                                parent_layout = label.parentWidget().layout() #Get the parent layout of the label
+                                if parent_layout: #if it exists
+                                        for i in range(parent_layout.count()): #go through all 
+                                                widget = parent_layout.itemAt(i).widget()
+                                                if isinstance(widget, QPlainTextEdit):
+                                                        return widget #return matching plain text edit
+                return None  # Return None if not found

@@ -40,9 +40,11 @@ class ClinicGUI(QMainWindow):
 
 
         #connect notification signals
-        #self.main_menu_gui.success_notification_signal
-        #self.main_menu_gui.error_notification_signal
-        #self.login_gui.login_failed_signal
+        # self.main_menu_gui.success_notification_signal
+        # self.main_menu_gui.error_notification_signal
+        # self.login_gui.login_failed_signal
+        # self.appointment_success_notification_signal 
+        #self.appointment_gui.error_notification_signal
 
 
         self.main_window_layout.setCurrentWidget(self.login_gui) #open to login view on start up
@@ -55,13 +57,16 @@ class ClinicGUI(QMainWindow):
     def run_main_menu_page(self):
         self.main_menu_gui.refresh_patient_list_signal.emit()
         self.setWindowTitle("Main Menu Page") #Set main window title
-        self.main_menu_gui.logged_in_label.setText(f"<span style='color : {self.design_ref_dict["secondaryText"]};'>logged in as:</span> {self.login_gui.current_user_logged_in}") #set the user name that logged in
+        #set the user name that logged in
+        self.main_menu_gui.logged_in_label.setText(f"<span style='color : {self.design_ref_dict["secondaryText"]};'>logged in as:</span> {self.login_gui.current_user_logged_in}") 
         self.controller.unset_current_patient() #remove cur patient at start for page to work
         self.main_window_layout.setCurrentWidget(self.main_menu_gui)
         self.resize(1000, 700) #Adjust size to fit the widgets
 
     def run_appointment_page(self):
-        self.appointment_gui.viewController.refresh_notes() #refresh notes on opening
+        #set the user name that logged in
+        self.appointment_gui.list_notes_signal.emit()
+        self.appointment_gui.appointment_with_label.setText(f"<span style='color : {self.design_ref_dict["secondaryText"]};'>In appointment with: </span> {self.controller.get_current_patient.name}") 
         self.setWindowTitle("Appointment Page") #Set main window title
         self.main_window_layout.setCurrentWidget(self.appointment_gui)
         self.adjustSize() #Adjust size to fit the widgets

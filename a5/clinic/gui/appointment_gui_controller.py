@@ -1,100 +1,72 @@
 from clinic.exception.illegal_operation_exception import IllegalOperationException
+from clinic.note import Note
+from collections import OrderedDict
 
 class agController():
     def __init__(self, apointment_gui):
         self.ag = apointment_gui #ref to the gui
         self.controller = self.ag.controller #ref to the controller
+        self.ag.notes_list = []
+        self.notes_to_delete = []
         self.connect_signals()
-        self.og_notes = {}
+        self.setUp()
     
     def connect_signals(self):
         """connect button singals to correct methods"""
-        #self.ag.search_notes_signal.connect(self.search_notes) #searches for term entered, passes str search term
-        self.ag.save_notes_signal.connect(self.save_edits)  #saves edits if made
+        self.ag.search_notes_signal.connect(self.search_notes) #searches for term entered, passes str search term
+        self.ag.save_all_notes_signal.connect(self.save_edits_deletes)  #saves edits if made
         self.ag.delete_note_signal.connect(self.delete_note) #delete cur note
-        self.ag.list_notes_signal.connect(self.refresh_notes)
-        self.ag.create_note_signal.connect(self.create_note)
-    
-    
+        self.ag.list_notes_signal.connect(self.list_all) #refreshes all notes, updates view to ALL existing notes
+        self.ag.update_search_signal.connect(self.search_notes) #search for notes
+        #self.ag.create_note_signal.connect(self.create_note) #
 
-    def refresh_notes(self):
-        """get notes from contoller and update the view"""
-        self.ag.appointmentGUI_layout.removeWidget(self.ag.notes_view)
-        self.ag.notes_view.deleteLater()
+    def setUp(self, passed_list=[-1]):
+        if passed_list == [-1]: #not list passed
+            self.ag.notes_list = self.get_notes_from_file
+        else:
+            self.ag.notes_list = passed_list
 
-        # Create a new notes section and add it to the layout
-        self.ag.notes_view = self.ag.create_notes_section()
-        self.ag.appointmentGUI_layout.addWidget(self.ag.notes_view)
+    def get_notes_from_file(self):
+        if self.controller.login_status and self.controller.get_current_patient() is not None: #skip dynamic set up on initial creating to prevent error
+                self.ag.notes_list = self.controller.list_notes()
+        else: #set to default at the start
+                self.ag.error_notification_signal("error loading notes from file")
 
-    def add_note_to_display(self, note):
-        """
-        Add note to the display
-        """
-        # Append the "Last Edited" line (non-editable)
-        self.ag.notes_view.appendPlainText(f"Last Edited: {note.timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
-        #display like 2024-12-05 21:14:11
-        
-        self.ag.notes_view.appendPlainText(note.text) #add note content
-        self.ag.notes_view.appendPlainText("") #
+    def list_all(self):
+        """refresh view and unpdate to the current list of notes"""
+        self.setUp()
+        self.ag.create_notes_view()
 
-    def save_edits(self):
+    def search_notes(self, search_text):
+        self.ag.notes_list = self.controller.retrieve_notes(search_text)
+        self.setUp(self.ag.notes_list)
+        self.ag.create_notes_view()
+
+    def save_edits_deletes(self):
         """
         Save any changes made to the notes.
 
         Updates only the edited notes in the backend.
         """
-        try:
-            notes = self.ag.notes_view.toPlainText().strip().split("\n\n")
 
-            for i, content in enumerate(notes):
-                if not content.strip():
-                    continue
+        for note_to_delete in self.notes_to_delete: #remove notes in delete que
+                    self.controller.delete_note(note_to_delete) #remove from backend
 
-                # Extract note text (skip the "Last Edited" line)
-                lines = content.split("\n")
-                note_text = "\n".join(lines[1:])  # Skip the first line
+        self.get_notes_from_file #update to get notes list without deleted notes
 
-                # Compare with the original note content
-                note_number = i + 1
-                original_text = self.og_notes.get(note_number)
+        for note in self.ag.notes_list: #update all changed notes
+            note_editor = self.ag.get_edit_window(f"note_text_at({note.note_number})")
+            entered_text = note_editor.toPlainText() #normalize text from editor
+            if note.text != entered_text:
+                 self.controller.update_note(note.note_number, entered_text)
+        
+        self.list_all
+            
+    def delete_note(self, note_num_to_delete):
+        """Delete note given key, refresh the view"""
+        self.ag.sender().hide() #remove delete button after pressing
+        self.notes_to_delete.append(note_num_to_delete)
 
-                if note_text != original_text:
-                    # Update the backend with the new content
-                    self.ag.controller.update_note(note_number, note_text)
-
-            # Reload notes after saving changes
-            self.refresh_notes()
-
-        except Exception as e:
-            print(f"Error saving edits: {e}")
-
-    def delete_note(self):
-        """
-        Delete the currently selected note.
-
-        Deletes the note from the backend and refreshes the notes display.
-        """
-        try:
-            cursor = self.ag.notes_view.textCursor()
-            cursor.select(self.ag.QTextCursor.SelectionType.LineUnderCursor)
-            selected_text = cursor.selectedText()
-
-            if selected_text.startswith("Last Edited:"):
-                note_index = cursor.blockNumber() // 3 + 1  # Adjust for blank lines
-                self.ag.controller.delete_note(note_index)
-                self.refresh_notes()
-
-        except Exception as e:
-            print(f"Error deleting note: {e}")
-
-    def create_note(self):
-        """
-        Create a new note with default content and refresh the display.
-        """
-        try:
-            new_note_text = "New note content..."
-            self.ag.controller.create_note(new_note_text)
-            self.refresh_notes()
-
-        except Exception as e:
-            print(f"Error creating note: {e}")
+    def create_note(self, new_note_text="nothing was entered for the note"):
+        self.controller.create_note(new_note_text)
+        self.list_all
