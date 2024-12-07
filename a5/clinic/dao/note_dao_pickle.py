@@ -73,12 +73,13 @@ class NoteDAOPickle(NoteDAO):
     def retrieve_notes(self, search_string):
         """return list of matching notes"""
         
-        
-        retrieved_notes_list = []
 
-        for i in range(self.ordered_notes[]):
-            if search_string in self.ordered_notes[i]:
-                print("YIPPIE YIPPIEE")
+        retrieved = []
+        for element in self.ordered_notes.values():
+            #search for matching notes
+            if search_string in element.text:
+                retrieved.append(element)
+        return retrieved
 
 
         #search_lowercase = search_string.lower() #makes lowercase

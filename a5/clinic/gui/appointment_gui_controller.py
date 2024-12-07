@@ -32,9 +32,10 @@ class agController():
     def list_all(self):
         """refresh view and unpdate to the current list of notes"""
         self.setUp()
+        retrieved = []
         for note in self.ag.list_of_notes:
-            print(note)
-        self.ag.reset_appt_window_signal.emit()
+            retrieved.append(note)
+        self.ag.refresh_note()
         
     def search_notes(self, search_text):
         self.ag.list_of_notes = self.controller.retrieve_notes(search_text)

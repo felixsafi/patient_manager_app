@@ -119,7 +119,7 @@ class AppointmentGUI(QWidget):
         def connect_active_elements(self):
                 self.return_button.clicked.connect(lambda: self.exit_appointment_signal.emit()) #exit back to main menu
                 self.create_note_button.clicked.connect(lambda: self.create_note_signal.emit())
-                self.list_all_notes_button.clicked.connect(lambda: self.list_all_notes_button.emit())
+                self.list_all_notes_button.clicked.connect(lambda: self.list_all_notes_signal.emit())
                 self.search_button.clicked.connect(lambda: self.search_notes_signal.emit(self.search_input.text()))
                 self.update_button.clicked.connect(lambda: self.update_search_signal.emit())
                 self.delete_button.clicked.connect(lambda: self.delete_note_signal.emit())
