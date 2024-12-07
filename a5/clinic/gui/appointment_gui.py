@@ -26,6 +26,7 @@ class AppointmentGUI(QWidget):
         search_notes_signal = pyqtSignal(str)
         list_notes_signal = pyqtSignal() #update the view to list all notes
         create_note_signal = pyqtSignal(str) #notify that note was created (send note text)
+        reset_appt_window_signal = pyqtSignal()
 
         def __init__(self, controller):
                 super().__init__()
@@ -202,4 +203,4 @@ class AppointmentGUI(QWidget):
                 return scrolling_layout #returns scrolling layout with everything in it
         
         def update_view(self):
-                print("would update the view here")
+                self.reset_appt_window_signal.emit()

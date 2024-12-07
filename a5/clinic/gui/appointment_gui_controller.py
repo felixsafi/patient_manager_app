@@ -65,7 +65,7 @@ class agController():
             self.ag.create_frame.hide()
             self.controller.create_note(self.ag.notes_to_create_edit_field.text())
 
-        self.list_all()
+        self.list_all
             
     def que_delete_note(self, note_num_to_delete):
         """Delete note given key, refresh the view"""
