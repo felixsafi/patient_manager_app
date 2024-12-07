@@ -171,23 +171,29 @@ class mmgController():
 
     def start_appointment(self):
         """start appointment"""
-        if self.selected_patient is None:
-            self.mmg.error_notification_signal.emit("please select a patient before starting an appointment")
-        else:
-            self.mmg.controller.set_current_patient(self.selected_patient.phn)
-            self.mmg.success_notification_signal.emit(f"appointment started with {self.mmg.controller.get_current_patient().name}")
-            self.mmg.start_appoint_signal.emit()
+        try:
+            if self.selected_patient is None:
+                self.mmg.error_notification_signal.emit("please select a patient before starting an appointment")
+            else:
+                self.mmg.controller.set_current_patient(self.selected_patient.phn)
+                self.mmg.success_notification_signal.emit(f"appointment started with {self.mmg.controller.get_current_patient().name}")
+                self.mmg.start_appoint_signal.emit()
+        except IllegalOperationException as e:
+            self.mmg.error_notification_signal.emit("error: no patient selected for appointment")
 
 
 
     def delete_cur_patient(self):
         """delete the current selected patient and refresh the list"""
-        if self.selected_patient is None:
-            self.mmg.error_notification_signal.emit("please select a patient to delete")
-        else:
-            self.mmg.controller.delete_patient(self.selected_patient.phn)
-            self.mmg.success_notification_signal.emit(f"{self.selected_patient.name} removed and list updated")
-            self.mmg.refresh_patient_list_signal.emit()
+        try:
+            if self.selected_patient is None:
+                self.mmg.error_notification_signal.emit("please select a patient to delete")
+            else:
+                self.mmg.controller.delete_patient(self.selected_patient.phn)
+                self.mmg.success_notification_signal.emit(f"{self.selected_patient.name} removed and list updated")
+                self.mmg.refresh_patient_list_signal.emit()
+        except IllegalOperationException as e:
+            self.mmg.error_notification_signal.emit("error: no patient selected to delete")
 
     def set_selected_patient(self):
         """sets the highlighted row to cur patient"""
@@ -220,6 +226,7 @@ class mmgController():
     def refresh_patient_list(self, list_to_update_to=None):
         """updates to current list oF all patients or to a curated list if one is passeD"""
         self.mmg.patient_model.refresh_data() if list_to_update_to is None else self.mmg.patient_model.refresh_data(list_to_update_to)
+        self.hide_show_buttons_for_update(False)
 
     def fake_patient_data(self, create_delete_bool=False):
         """"creates or removes fake patinets"""
