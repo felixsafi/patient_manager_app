@@ -22,7 +22,7 @@ class AppointmentGUI(QWidget):
 
         create_note_signal = pyqtSignal(str) #notify that note was created (send note text)
         delete_note_signal = pyqtSignal(int) #delete cur note
-        update_search_signal = pyqtSignal(str)#searches for term entered
+        update_search_signal = pyqtSignal(int, str)#searches for term entered
         list_all_notes_signal = pyqtSignal() #saves edits if made
         search_notes_signal = pyqtSignal(str)
 
@@ -103,9 +103,35 @@ class AppointmentGUI(QWidget):
                 note_function_buttons_layout.addWidget(self.list_all_notes_button)
                 self.appointmentGUI_layout.addLayout(note_function_buttons_layout)
 
-                self.text_box = QPlainTextEdit() #empty text box
-                self.text_box.ssetObjectName("regular")
 
+                horizontal_layout = QHBoxLayout()
+
+                # Create the first plain text box for the note number
+                self.note_number_box = QPlainTextEdit()
+                self.note_number_box.setPlaceholderText("Enter note number here - click create to save")
+                self.note_number_box.setFixedHeight(30)  # Adjust height for a cleaner appearance
+                horizontal_layout.addWidget(self.note_number_box)
+                self.note_number_box.setReadOnly(False)
+
+                # Create the second plain text box for the update text
+                self.update_text_box = QPlainTextEdit()
+                self.update_text_box.setPlaceholderText("Enter text to update to - click update to save")
+                self.update_text_box.setFixedHeight(30)  # Adjust height for a cleaner appearance
+                horizontal_layout.addWidget(self.update_text_box)
+                self.update_text_box.setReadOnly(False)
+
+                # Create the second plain text box for the update text
+                self.create_text_box = QPlainTextEdit()
+                self.create_text_box.setPlaceholderText("enter new note text")
+                self.create_text_box.setFixedHeight(30)  # Adjust height for a cleaner appearance
+                self.appointmentGUI_layout.addWidget(self.create_text_box)
+                self.create_text_box.setReadOnly(False)
+
+                self.appointmentGUI_layout.addLayout(horizontal_layout)
+
+
+                self.text_box = QPlainTextEdit() #empty text box
+                self.text_box.setObjectName("regular")
                 self.appointmentGUI_layout.addWidget(self.text_box)
 
                 self.setLayout(self.appointmentGUI_layout)
@@ -114,10 +140,10 @@ class AppointmentGUI(QWidget):
 
         def connect_active_elements(self):
                 self.return_button.clicked.connect(lambda: self.exit_appointment_signal.emit()) #exit back to main menu
-                self.create_note_button.clicked.connect(lambda: self.create_note_signal.emit())
+                self.create_note_button.clicked.connect(lambda: self.create_note_signal.emit((self.create_text_box)))
                 self.list_all_notes_button.clicked.connect(lambda: self.list_all_notes_button.emit())
                 self.search_button.clicked.connect(lambda: self.search_notes_signal.emit(self.search_input.text()))
-                self.update_button.clicked.connect(lambda: self.update_search_signal.emit())
+                self.update_button.clicked.connect(lambda: self.update_search_signal.emit(int(self.note_number_box), self.update_text_box.text()))
                 self.delete_button.clicked.connect(lambda: self.delete_note_signal.emit())
 
         def refresh_text(self, text_list):
