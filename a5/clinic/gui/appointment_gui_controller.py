@@ -35,12 +35,10 @@ class agController():
         self.setUp()
         for note in self.ag.list_of_notes:
             print(note)
-        self.ag.update_view()
 
     def search_notes(self, search_text):
         self.ag.list_of_notes = self.controller.retrieve_notes(search_text)
-        self.setUp(self.ag.list_of_notes)
-        self.list_all()
+        print(self.ag.list_of_notes)
 
     def save_edits_deletes(self):
         """
@@ -76,4 +74,5 @@ class agController():
     def create_note(self, new_note_text="nothing was entered for the note"):
         self.list_all()
         self.ag.create_frame.show()
+        self.ag.controller.create_note(new_note_text)
   

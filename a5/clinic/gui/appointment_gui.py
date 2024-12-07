@@ -29,12 +29,16 @@ class AppointmentGUI(QWidget):
 
         def __init__(self, controller):
                 super().__init__()
-                self.list_of_notes = [Note(0, "test"), Note(2, "test1")]
                 self.edit_field_dictionary = {} #dictionary to reference the edit fields 
                 self.delete_buttons_dictionary = {} #dict to references each new delete button added
 
                 self.controller = controller#set reference to controller 
                 self.viewController = agController(self)#create/initialize view controller class
+
+                if self.controller.login_status == True:
+                        self.list_of_notes = self.controller.list_notes()
+                else:
+                         self.list_of_notes = []
 
                 self.create_layout()#set up the gui
                 self.connect_active_elements()#set up active elements to emit correct signals
@@ -101,7 +105,7 @@ class AppointmentGUI(QWidget):
                 self.appointmentGUI_layout.addLayout(note_function_buttons_layout)
 
                 self.notes_view = self.create_notes_view()
-                #self.appointmentGUI_layout.addWidget(self.notes_view)
+                self.appointmentGUI_layout.addWidget(self.notes_view)
 
                 self.setLayout(self.appointmentGUI_layout)
 
@@ -111,7 +115,7 @@ class AppointmentGUI(QWidget):
                 #self.logout_button.clicked.connect(lambda: self.logout_signal_internal.emit())#logout signal
                 #self.refresh_button.clicked.connect(lambda: self.refresh_note_list_signal.emit())#refresh signal
                 self.return_button.clicked.connect(lambda: self.exit_appointment_signal.emit()) #exit back to main menu
-                self.create_note_button.clicked.connect(lambda: self.create_note_signal.emit())
+                self.create_note_button.clicked.connect(lambda: self.create_note_signal.emit("created note"))
                 self.list_all_notes_button.clicked.connect(lambda: self.list_notes_signal.emit())
                 self.search_button.clicked.connect(lambda: self.search_notes_signal.emit(self.search_input.text()))
                 self.save_button.clicked.connect(lambda: self.save_all_notes_signal.emit())
@@ -203,3 +207,5 @@ class AppointmentGUI(QWidget):
         
         def update_view(self):
                 print("would update the view here")
+                self.viewController.list_all()
+                

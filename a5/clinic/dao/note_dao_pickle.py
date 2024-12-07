@@ -72,14 +72,23 @@ class NoteDAOPickle(NoteDAO):
 
     def retrieve_notes(self, search_string):
         """return list of matching notes"""
-        search_lowercase = search_string.lower() #makes lowercase
-        matching_notes_list = [
-            value
-            for value in self.ordered_notes.values()
-            if search_lowercase in value.get("text", "").lower()  # Adjust for correct attribute
-        ]
+        
+        
+        retrieved_notes_list = []
 
-        return matching_notes_list
+        for i in range(self.ordered_notes[]):
+            if search_string in self.ordered_notes[i]:
+                print("YIPPIE YIPPIEE")
+
+
+        #search_lowercase = search_string.lower() #makes lowercase
+        #matching_notes_list = [
+        #    value
+        #    for value in self.ordered_notes.values()
+        #    if search_lowercase in value.get("text", "").lower()  # Adjust for correct attribute
+        #]
+
+        #return matching_notes_list
 
     def update_note(self, note_number, text):
         """update the note if possible"""
