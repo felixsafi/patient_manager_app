@@ -12,11 +12,10 @@ from clinic.exception.no_current_patient_exception import NoCurrentPatientExcept
 
 class NoteDAOPickle(NoteDAO):
 
-    def __init__(self, autosave = False, phn=None, guiFunction=False):
+    def __init__(self, autosave = False, phn=None):
         self.autosave = autosave
         self.phn = phn #set patient phn for records access
 
-        self.gui_on = guiFunction
         self.file_path = None #file_path to file to be accessed
         self.note_count = 0
         self.num_of_notes = 0
@@ -48,7 +47,7 @@ class NoteDAOPickle(NoteDAO):
                     while check_for_valid_note_count is None:
                         check_for_valid_note_count = self.search_note(self.note_count)
                         self.note_count +=1
-        except FileNotFoundError:
+        except Exception as e:
             with open(self.file_path, 'wb') as file:
                 dump(self.ordered_notes, file)
 
@@ -61,7 +60,7 @@ class NoteDAOPickle(NoteDAO):
         self.note_count += 1
         self.num_of_notes += 1
         new_note = Note(self.note_count, text)
-        self.notes[self.note_count] = new_note
+        self.ordered_notes[self.note_count] = new_note
         
 
         # save file after creating a new note
