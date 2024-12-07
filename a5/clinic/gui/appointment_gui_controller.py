@@ -35,11 +35,11 @@ class agController():
         retrieved = []
         for note in self.ag.list_of_notes:
             retrieved.append(note)
-        self.ag.refresh_note()
+        self.ag.refresh_text(retrieved)
         
     def search_notes(self, search_text):
-        self.ag.list_of_notes = self.controller.retrieve_notes(search_text)
-        print(self.ag.list_of_notes)
+        retreived = self.controller.retrieve_notes(search_text)
+        self.ag.refresh_text(retreived)
 
     def update_note(self):
         """

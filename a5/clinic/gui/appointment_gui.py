@@ -109,7 +109,7 @@ class AppointmentGUI(QWidget):
                 self.appointmentGUI_layout.addLayout(note_function_buttons_layout)
 
                 self.text_box = QPlainTextEdit() #empty text box
-                self.text_box.ssetObjectName("regular")
+                self.text_box.setObjectName("regular")
 
                 self.appointmentGUI_layout.addWidget(self.text_box)
 
@@ -127,7 +127,7 @@ class AppointmentGUI(QWidget):
 
         def refresh_text(self, text_list):
                 self.text_box.clear()
-                for note_info in list:
+                for note_info in text_list:
                         self.text_box.appendPlainText(f"note number -- {note_info.note_number}, last modified -- {note_info.timestamp}")
                         self.text_box.appendPlainText(note_info.text)
                         self.text_box.appendPlainText("\n")
