@@ -1,5 +1,7 @@
 from pickle import load, dump
 from clinic.note import Note
+import string
+from collections import OrderedDict, Counter #for ordered dict
 from clinic.dao.note_dao import NoteDAO
 from clinic.exception.invalid_login_exception import InvalidLoginException
 from clinic.exception.duplicate_login_exception import DuplicateLoginException
@@ -10,13 +12,15 @@ from clinic.exception.no_current_patient_exception import NoCurrentPatientExcept
 
 class NoteDAOPickle(NoteDAO):
 
-    def __init__(self, autosave = False, phn=None):
+    def __init__(self, autosave = False, phn=None, guiFunction=False):
         self.autosave = autosave
         self.phn = phn #set patient phn for records access
 
+        self.gui_on = guiFunction
         self.file_path = None #file_path to file to be accessed
         self.note_count = 0
-        self.notes = {}
+        self.num_of_notes = 0
+        self.ordered_notes = OrderedDict() #empy ordered dictionary
 
         # create empty list of notes or previously created notes with autosave on
         if self.autosave:
@@ -36,43 +40,47 @@ class NoteDAOPickle(NoteDAO):
                 
                 with open(self.file_path, 'rb') as file:
                     #set the notes dictionary and counter from the file
-                    self.notes = load(file)
-                    self.note_count = len(self.notes)
+                    self.ordered_notes = load(file)
+                    self.num_of_notes = len(self.ordered_notes)
+                    self.note_count = self.num_of_notes
+
+                    check_for_valid_note_count = None
+                    while check_for_valid_note_count is None:
+                        check_for_valid_note_count = self.search_note(self.note_count)
+                        self.note_count +=1
         except FileNotFoundError:
-            #create notes in memory if file not found
-            self.notes = {}
+            with open(self.file_path, 'wb') as file:
+                dump(self.ordered_notes, file)
 
     def search_note(self, note_number):
         """return the value for the given note num or None if ivalid key"""
-        return self.notes.get(note_number, None) 
-
-    # def does_note_exist(self, note_number):
-    #     """check if the note exists"""
-    #     if self.notes[note_number] is not None:
-    #         return True
-    #     else:
-    #         return False
+        return self.ordered_notes.get(note_number, None) 
     
     def create_note(self, text):
         """create note update counter"""
         self.note_count += 1
+        self.num_of_notes += 1
         new_note = Note(self.note_count, text)
         self.notes[self.note_count] = new_note
+        
 
         # save file after creating a new note
         if self.autosave:
             with open(self.file_path, 'wb') as file:
-                dump(self.notes, file)
+                dump(self.ordered_notes, file)
+
         return new_note
 
     def retrieve_notes(self, search_string):
-        """return list of notes"""
-        retrieved = []
-        for element in self.notes.values():
-            #search for matching notes
-            if search_string in element.text:
-                retrieved.append(element)
-        return retrieved
+        """return list of matching notes"""
+        search_lowercase = search_string.lower() #makes lowercase
+        matching_notes_list = [
+            value
+            for value in self.ordered_notes.values()
+            if search_lowercase in value.get("text", "").lower()  # Adjust for correct attribute
+        ]
+
+        return matching_notes_list
 
     def update_note(self, note_number, text):
         """update the note if possible"""
@@ -80,12 +88,9 @@ class NoteDAOPickle(NoteDAO):
         if existing_note is not None:
             #update each value
             existing_note.update_note(text)
-            
-            # save file after updating patient
-            if self.autosave:
-                with open(self.file_path, 'wb') as file:
-                    dump(self.notes, file)
-            return True
+            self.ordered_notes.move_to_end(note_number) #moves to end of list if updated        
+            self.save_list()# save file after updating 
+            return note_number
         else:
             return False
    
@@ -93,19 +98,29 @@ class NoteDAOPickle(NoteDAO):
         """delete the note if possible"""
         element = self.search_note(note_number)
         if element:
-            self.notes[note_number] = None
-            # save file after deleting patient
+            del self.ordered_notes[note_number]
             if self.autosave:
-                with open(self.file_path, 'wb') as file:
-                    dump(self.notes, file)
+                self.save_list()
+            self.num_of_notes -=1
             return True
         else:
             return False
     
     def list_notes(self):
         """return a list of all the notes"""
-        notes_retrieved_list = []
-        for item in self.notes.keys():
-            if (self.notes[item] is not None):
-                notes_retrieved_list.append(self.notes[item])
-        return list(reversed(notes_retrieved_list))
+        return [value for value in self.ordered_notes.values()]
+    
+    def save_list(self):
+        """saves"""
+        if self.autosave:
+                with open(self.file_path, 'wb') as file:
+                    dump(self.ordered_notes, file)
+                self.num_of_notes = len
+    
+    def common_words(self):
+        combined_notes = " ".join(self.list_notes) #combine all strings of words
+        combined_notes = combined_notes.lower().translate(str.maketrans("", "", string.punctuation))#normalize all strings of notes
+        all_words = {word for word in combined_notes.split() if len(word) >= 4} #gets words of at least 4 letters
+        word_counts = Counter(all_words) #counts num of each valud word occurance
+
+        return [word for word, count in word_counts.most_common((self.num_of_notes // 4)*1)] 

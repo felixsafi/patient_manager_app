@@ -14,7 +14,7 @@ class PatientTableModel(QAbstractTableModel):
         self._data = []
         self.refresh_data()
 
-    def refresh_data(self):
+    def refresh_data(self, passed_list=None):
         self.beginResetModel()
         self._data = []
         # TODO: Call the controller.list_patients().
@@ -24,7 +24,7 @@ class PatientTableModel(QAbstractTableModel):
         
 
         try:
-            patients = self.controller.list_patients()
+            patients = self.controller.list_patients() if (passed_list is None) else passed_list
             # print(patients)
         except IllegalAccessException as e:
             patients = []
@@ -64,11 +64,6 @@ class PatientTableModel(QAbstractTableModel):
                 return '%s' % value
             # Default (anything not captured above: e.g. int)
             return value
-
-        if role == Qt.ItemDataRole.TextAlignmentRole:
-            if isinstance(value, int) or isinstance(value, float):
-                # Align right, vertical middle.
-                return Qt.AlignmentFlag.AlignVCenter + Qt.AlignmentFlag.AlignRight
 
     def rowCount(self, index):
         # The length of the outer list.

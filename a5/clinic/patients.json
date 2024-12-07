@@ -1,1 +1,0 @@
-[{"__type__": "Patient", "phn": "12345", "name": "felix", "birth_date": "01/01/2000", "phone": "416-000-0000", "email": "user@gmail.com", "address": "123 Street"}, {"__type__": "Patient", "phn": "123456", "name": "felix", "birth_date": "00/00/0000", "phone": "no phone provided", "email": "no email provided", "address": "no adress provided"}]

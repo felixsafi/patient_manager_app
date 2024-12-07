@@ -11,10 +11,10 @@ class Note:
         """updates note text and timestamp"""
         self.text = text
         self.timestamp = datetime.now()
-
+    
     def __eq__(self, other):
         """check if number and text are equal"""
         return (self.note_number == other.note_number) and (self.text == other.text)
-
+    
     def __str__(self):
         return "code: %d, text: %s" % (self.note_number, self.text)

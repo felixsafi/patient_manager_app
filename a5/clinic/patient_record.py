@@ -31,3 +31,6 @@ class PatientRecord:
     def list_notes(self):
         """list all valid notes and return"""
         return self.noteDAO.list_notes()
+
+    def common_words(self):
+        return self.noteDAO.common_words()
