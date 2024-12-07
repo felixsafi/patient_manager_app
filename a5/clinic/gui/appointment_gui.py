@@ -182,4 +182,4 @@ class AppointmentGUI(QWidget):
         
         def update_view(self):
                 self.appointmentGUI_layout.removeWidget(self.notes_view)
-                self.appointmentGUI_layout.addWidget(self.create_layout())
+                self.appointmentGUI_layout.addWidget(self.create_notes_view())

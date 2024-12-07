@@ -51,7 +51,7 @@ class agController():
         Updates only the edited notes in the backend.
         """
 
-        for note_to_delete in self.notes_to_delete: #remove notes in delete que
+        for note_to_delete in self.notes_to_delete_que: #remove notes in delete que
                     self.controller.delete_note(note_to_delete) #remove from backend
 
         self.get_notes_from_file #update to get notes list without deleted notes
@@ -66,7 +66,6 @@ class agController():
             
     def que_delete_note(self, note_num_to_delete):
         """Delete note given key, refresh the view"""
-        print(note_num_to_delete)
         self.notes_to_delete_que.append(note_num_to_delete)
 
     def create_note(self, new_note_text="nothing was entered for the note"):
