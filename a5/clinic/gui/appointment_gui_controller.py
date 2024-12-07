@@ -5,7 +5,7 @@ class agController():
     def __init__(self, apointment_gui):
         self.ag = apointment_gui #ref to the gui
         self.controller = self.ag.controller #ref to the controller
-        self.notes_to_delete = []
+        self.notes_to_delete_que = []
         self.connect_signals()
         self.setUp()
     
@@ -13,7 +13,7 @@ class agController():
         """connect button singals to correct methods"""
         self.ag.search_notes_signal.connect(self.search_notes) #searches for term entered, passes str search term
         self.ag.save_all_notes_signal.connect(self.save_edits_deletes)  #saves edits if made
-        self.ag.delete_note_signal.connect(self.delete_note) #delete cur note
+        self.ag.delete_note_signal.connect(self.que_delete_note) #delete cur note
         self.ag.list_notes_signal.connect(self.list_all) #refreshes all notes, updates view to ALL existing notes
         self.ag.update_search_signal.connect(self.search_notes) #search for notes
         #self.ag.create_note_signal.connect(self.create_note) #
@@ -64,10 +64,10 @@ class agController():
         
         self.list_all
             
-    def delete_note(self, note_num_to_delete):
+    def que_delete_note(self, note_num_to_delete):
         """Delete note given key, refresh the view"""
-        self.ag.sender().hide() #remove delete button after pressing
-        self.notes_to_delete.append(note_num_to_delete)
+        print(note_num_to_delete)
+        self.notes_to_delete_que.append(note_num_to_delete)
 
     def create_note(self, new_note_text="nothing was entered for the note"):
         self.controller.create_note(new_note_text)

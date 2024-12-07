@@ -36,7 +36,7 @@ class ClinicGUI(QMainWindow):
         self.login_gui.exit_app_signal.connect(self.run_quit) #quit from login
 
         #create style elements dictionaries
-        self.create_style_dict(0.3) #pick from 0.1(small)->0.9(big)
+        self.create_style_dict(0.4) #pick from 0.1(small)->0.9(big)
     
 
 

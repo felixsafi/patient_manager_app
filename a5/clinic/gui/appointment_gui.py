@@ -30,12 +30,14 @@ class AppointmentGUI(QWidget):
         def __init__(self, controller):
                 super().__init__()
                 self.list_of_notes = [Note(0, "test"), Note(2, "test1")]
+                self.edit_field_dictionary = {} #dictionary to reference the edit fields 
+                self.delete_buttons_dictionary = {} #dict to references each new delete button added
+
                 self.controller = controller#set reference to controller 
                 self.viewController = agController(self)#create/initialize view controller class
+
                 self.create_layout()#set up the gui
                 self.connect_active_elements()#set up active elements to emit correct signals
-                self.viewController = agController(self)#create/initialize view controller class
-                self.edit_field_dictionary = {}
                 
         def create_layout(self):
                 """Create the GUI for the appointment Window"""        
@@ -123,17 +125,18 @@ class AppointmentGUI(QWidget):
                 main_notes_view = QVBoxLayout(main_notes_obj) 
                 main_notes_view.setSpacing(10) #space out from other elements
 
-                self.edit_field_dictionary = {}
+                self.edit_field_dictionary.clear()
+                self.delete_buttons_dictionary.clear()
 
                 for each_note in self.list_of_notes: #for all notes in the list
 
                         cur_note_num = each_note.note_number
 
-                        layout_for_aesthetics = QFrame() #frame for design
-                        layout_for_aesthetics.setObjectName("noteBox")
+                        self.new_frame = QFrame() #frame for design
+                        self.new_frame.setObjectName("noteBox")
 
                         #vertical holder for label, and actual note
-                        individual_note_layout = QVBoxLayout(layout_for_aesthetics)                        
+                        individual_note_layout = QVBoxLayout(self.new_frame)                        
 
                         #header for note
                         note_header = QLabel(f"Note {cur_note_num} Last Edited: {each_note.timestamp}") 
@@ -148,14 +151,14 @@ class AppointmentGUI(QWidget):
                         self.edit_field_dictionary[cur_note_num].setObjectName("regular") #make findable for controler
                         note_and_button_layout.addWidget(self.edit_field_dictionary[cur_note_num])
 
-                        delete_button = QPushButton("delete")
-                        delete_button.setObjectName("primaryButton") #styling
-                        delete_button.clicked.connect(lambda: self.delete_note_signal.emit(each_note.note_number)) #sends delete signal with note number
-                        note_and_button_layout.addWidget(delete_button) #add to h layout
+                        self.delete_buttons_dictionary[cur_note_num] = QPushButton("delete") #addbutton to dictionary at note_num
+                        self.delete_buttons_dictionary[cur_note_num].setObjectName("primaryButton") #styling
+                        self.delete_buttons_dictionary[cur_note_num].clicked.connect(lambda: self.delete_note_signal.emit(cur_note_num)) #sends delete signal with note number
+                        note_and_button_layout.addWidget(self.delete_buttons_dictionary[cur_note_num]) #add to h layout
 
                         individual_note_layout.addLayout(note_and_button_layout)
                 
-                        main_notes_view.addWidget(layout_for_aesthetics) #adds the whole frame as widg w eveything in it
+                        main_notes_view.addWidget(self.new_frame) #adds the whole frame as widg w eveything in it
 
                 
                 main_notes_view.addStretch() #aligning
@@ -179,4 +182,4 @@ class AppointmentGUI(QWidget):
         
         def update_view(self):
                 self.appointmentGUI_layout.removeWidget(self.notes_view)
-                self.appointmentGUI_layout.addWidget(self.create_notes_view())
+                self.appointmentGUI_layout.addWidget(self.create_layout())
