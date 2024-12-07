@@ -20,9 +20,9 @@ class AppointmentGUI(QWidget):
         success_notification_signal = pyqtSignal(str) #returns error message
         error_notification_signal = pyqtSignal(str) #retruns messages for opertations complete
 
-        create_note_signal = pyqtSignal(str) #notify that note was created (send note text)
-        delete_note_signal = pyqtSignal(int) #delete cur note
-        update_search_signal = pyqtSignal(str)#searches for term entered
+        create_note_signal = pyqtSignal() #notify that note was created (send note text)
+        delete_note_signal = pyqtSignal() #delete cur note
+        update_search_signal = pyqtSignal()#searches for term entered
         list_all_notes_signal = pyqtSignal() #saves edits if made
         search_notes_signal = pyqtSignal(str)
 

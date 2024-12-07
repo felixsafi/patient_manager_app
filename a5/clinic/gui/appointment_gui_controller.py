@@ -47,33 +47,41 @@ class agController():
 
         Updates only the edited notes in the backend.
         """
+        try:
+            for notes in self.notes_to_delete_que: #remove notes in delete que
+                        self.controller.delete_note(notes.value()) #remove from backend
+                        self.delete_buttons_dictionary[notes].show()
 
-        for notes in self.notes_to_delete_que: #remove notes in delete que
-                    self.controller.delete_note(notes) #remove from backend
-                    self.delete_buttons_dictionary[notes].show()
+            self.get_notes_from_file #update to get notes list without deleted notes
 
-        self.get_notes_from_file #update to get notes list without deleted notes
+            for note in self.ag.list_of_notes: #update all changed notes
+                note_editor = self.ag.edit_field_dictionary[note.note_number]
+                entered_text = note_editor.toPlainText() #normalize text from editor
+                if note.text != entered_text:
+                    self.controller.update_note(note.note_number, entered_text)
+            if self.ag.new_note:
+                self.ag.new_note=False
+                self.ag.create_frame.hide()
+                self.controller.create_note(self.ag.notes_to_create_edit_field.text())
 
-        for note in self.ag.list_of_notes: #update all changed notes
-            note_editor = self.ag.edit_field_dictionary[note.note_number]
-            entered_text = note_editor.toPlainText() #normalize text from editor
-            if note.text != entered_text:
-                self.controller.update_note(note.note_number, entered_text)
-        if self.ag.new_note:
-            self.ag.new_note=False
-            self.ag.create_frame.hide()
-            self.controller.create_note(self.ag.notes_to_create_edit_field.text())
-
-        self.list_all
+            self.list_all
+        except Exception as e:
+            pass
             
     def delete_note(self, note_num_to_delete):
         """Delete note given key, refresh the view"""
-        print(f"deleting {note_num_to_delete}")
-        self.ag.delete_buttons_dictionary[note_num_to_delete].hide()
-        self.notes_to_delete_que.append(note_num_to_delete)
+        try:
+            print(f"deleting {note_num_to_delete}")
+            self.ag.delete_buttons_dictionary[note_num_to_delete].hide()
+            self.notes_to_delete_que.append(note_num_to_delete)
+        except Exception as e:
+            pass
 
     def create_note(self, new_note_text="nothing was entered for the note"):
-        self.list_all()
-        self.ag.create_frame.show()
-        self.ag.controller.create_note(new_note_text)
+        try:
+            self.list_all()
+            self.ag.create_frame.show()
+            self.ag.controller.create_note(new_note_text)
+        except Exception as e:
+            pass
   
