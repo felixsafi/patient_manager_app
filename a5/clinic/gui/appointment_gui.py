@@ -104,6 +104,7 @@ class AppointmentGUI(QWidget):
                 self.appointmentGUI_layout.addLayout(note_function_buttons_layout)
 
                 self.text_box = QPlainTextEdit() #empty text box
+                self.text_box.ssetObjectName("regular")
 
                 self.appointmentGUI_layout.addWidget(self.text_box)
 
@@ -118,10 +119,16 @@ class AppointmentGUI(QWidget):
                 self.search_button.clicked.connect(lambda: self.search_notes_signal.emit(self.search_input.text()))
                 self.update_button.clicked.connect(lambda: self.update_search_signal.emit())
                 self.delete_button.clicked.connect(lambda: self.delete_note_signal.emit())
-                self.refresh_text_signal.connect(self.refresh_text)
 
-        def refresh_text(self):
-                pass
+        def refresh_text(self, text_list):
+                self.text_box.clear()
+                for note_info in list:
+                        self.text_box.appendPlainText(f"note number -- {note_info.note_number}, last modified -- {note_info.timestamp}")
+                        self.text_box.appendPlainText(note_info.text)
+                        self.text_box.appendPlainText("\n")
+                self.text_box.setReadOnly(True)
+                
+
                 
         # def create_notes_view(self, create=False):
         #         """make a scrollable view area with notes added"""

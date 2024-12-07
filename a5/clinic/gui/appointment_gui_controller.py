@@ -34,7 +34,6 @@ class agController():
         self.setUp()
         for note in self.ag.list_of_notes:
             print(note)
-        self.ag.reset_appt_window_signal.emit()
         
     def search_notes(self, search_text):
         self.ag.list_of_notes = self.controller.retrieve_notes(search_text)
