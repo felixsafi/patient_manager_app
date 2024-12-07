@@ -35,10 +35,11 @@ class AppointmentGUI(QWidget):
                 self.create_layout()#set up the gui
                 self.connect_active_elements()#set up active elements to emit correct signals
                 self.viewController = agController(self)#create/initialize view controller class
+                self.edit_field_dictionary = {}
                 
         def create_layout(self):
                 """Create the GUI for the appointment Window"""        
-                appointmentGUI_layout = QVBoxLayout()  # Main vertical layout
+                self.appointmentGUI_layout = QVBoxLayout()  # Main vertical layout
 
                 # Navigation bar
                 nav_bar = QHBoxLayout()
@@ -58,7 +59,7 @@ class AppointmentGUI(QWidget):
                 self.return_button.setObjectName("nav")  # Apply "nav" style
                 self.return_button.setFixedHeight(40)
                 nav_bar.addWidget(self.return_button)
-                appointmentGUI_layout.addLayout(nav_bar)
+                self.appointmentGUI_layout.addLayout(nav_bar)
 
                 # Search bar
                 search_bar_layout = QHBoxLayout()
@@ -70,7 +71,13 @@ class AppointmentGUI(QWidget):
                 self.search_button.setObjectName("primaryButton")  # Apply "primaryButton" style
                 search_bar_layout.addWidget(self.search_input)
                 search_bar_layout.addWidget(self.search_button)
-                appointmentGUI_layout.addLayout(search_bar_layout)
+                self.appointmentGUI_layout.addLayout(search_bar_layout)
+
+                # Notes display section
+                notes_label = QLabel("Patient Records")
+                notes_label.setObjectName("h1")  # Apply "h1" style
+                notes_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                self.appointmentGUI_layout.addWidget(notes_label)
 
                 # Note management buttons
                 note_function_buttons_layout = QHBoxLayout()
@@ -78,7 +85,7 @@ class AppointmentGUI(QWidget):
                 self.create_note_button = QPushButton("Create Note")
                 self.create_note_button.setObjectName("primaryButton")  # Style for primary button
 
-                self.save_button = QPushButton("Save Note Changes")
+                self.save_button = QPushButton("Save All Changes")
                 self.save_button.setObjectName("primaryButton")
 
                 self.list_all_notes_button = QPushButton("Refresh")
@@ -88,18 +95,12 @@ class AppointmentGUI(QWidget):
                 note_function_buttons_layout.addWidget(self.create_note_button)
                 note_function_buttons_layout.addWidget(self.save_button)
                 note_function_buttons_layout.addWidget(self.list_all_notes_button)
-                appointmentGUI_layout.addLayout(note_function_buttons_layout)
-
-                # Notes display section
-                notes_label = QLabel("Notes")
-                notes_label.setObjectName("h1")  # Apply "h1" style
-                notes_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                appointmentGUI_layout.addWidget(notes_label)
+                self.appointmentGUI_layout.addLayout(note_function_buttons_layout)
 
                 self.notes_view = self.create_notes_view()
-                appointmentGUI_layout.addWidget(self.notes_view)
+                self.appointmentGUI_layout.addWidget(self.notes_view)
 
-                self.setLayout(appointmentGUI_layout)
+                self.setLayout(self.appointmentGUI_layout)
 
         def connect_active_elements(self):
                 #self.logout_button.clicked.connect(lambda: self.logout_signal_internal.emit())#logout signal
@@ -122,36 +123,30 @@ class AppointmentGUI(QWidget):
                 main_notes_view = QVBoxLayout(main_notes_obj) 
                 main_notes_view.setSpacing(10) #space out from other elements
 
-                save_all_button = QPushButton("Save All")
-                save_all_button.setObjectName("primaryButton")
-                save_all_button.clicked.connect(self.save_all_notes_signal)  # Connect save all action
-                main_notes_view.addWidget(save_all_button)
+                self.edit_field_dictionary = {}
 
                 for each_note in self.list_of_notes: #for all notes in the list
+
+                        cur_note_num = each_note.note_number
 
                         layout_for_aesthetics = QFrame() #frame for design
                         layout_for_aesthetics.setObjectName("noteBox")
 
                         #vertical holder for label, and actual note
-                        individual_note_layout = QVBoxLayout(layout_for_aesthetics) 
-
-                        #hidden identifier to locate elements
-                        identifier = QLabel(f"{each_note.note_number}")
-                        individual_note_layout.addWidget(identifier)
-                        identifier.hide() #hide identifier
+                        individual_note_layout = QVBoxLayout(layout_for_aesthetics)                        
 
                         #header for note
-                        note_header = QLabel(f"Note {each_note.note_number} Last Edited: {each_note.timestamp}") 
+                        note_header = QLabel(f"Note {cur_note_num} Last Edited: {each_note.timestamp}") 
                         note_header.setObjectName("h2") #style as h2
                         individual_note_layout.addWidget(note_header)
 
                         #horiz layout for note editor and buttons
                         note_and_button_layout = QHBoxLayout() 
 
-                        note_editor = QPlainTextEdit() #note editor
-                        note_editor.setPlainText(each_note.text) #set text to be the note text
-                        note_editor.setObjectName(f"note_text_at({each_note.note_number})") #make findable for controler
-                        note_and_button_layout.addWidget(note_editor)
+                        self.edit_field_dictionary[cur_note_num] = QPlainTextEdit() #note editor
+                        self.edit_field_dictionary[cur_note_num].setPlainText(each_note.text) #set text to be the note text
+                        self.edit_field_dictionary[cur_note_num].setObjectName("regular") #make findable for controler
+                        note_and_button_layout.addWidget(self.edit_field_dictionary[cur_note_num])
 
                         delete_button = QPushButton("delete")
                         delete_button.setObjectName("primaryButton") #styling
@@ -159,7 +154,7 @@ class AppointmentGUI(QWidget):
                         note_and_button_layout.addWidget(delete_button) #add to h layout
 
                         individual_note_layout.addLayout(note_and_button_layout)
-
+                
                         main_notes_view.addWidget(layout_for_aesthetics) #adds the whole frame as widg w eveything in it
 
                 
@@ -170,14 +165,18 @@ class AppointmentGUI(QWidget):
                 return scrolling_layout #returns scrolling layout with everything in it
 
         
-        def get_edit_window(self, identifier_num): 
-                labels = self.findChildren(QLabel)
-                for label in labels: #go through all qlabel objects
-                        if label.text() == str(identifier_num): #Check if the label text matches any
-                                parent_layout = label.parentWidget().layout() #Get the parent layout of the label
-                                if parent_layout: #if it exists
-                                        for i in range(parent_layout.count()): #go through all 
-                                                widget = parent_layout.itemAt(i).widget()
-                                                if isinstance(widget, QPlainTextEdit):
-                                                        return widget #return matching plain text edit
-                return None  # Return None if not found
+        # def get_edit_window(self, identifier_num): 
+        #         labels = self.findChildren(QLabel)
+        #         for label in labels: #go through all qlabel objects
+        #                 if label.text() == str(identifier_num): #Check if the label text matches any
+        #                         parent_layout = label.parentWidget().layout() #Get the parent layout of the label
+        #                         if parent_layout: #if it exists
+        #                                 for i in range(parent_layout.count()): #go through all 
+        #                                         widget = parent_layout.itemAt(i).widget()
+        #                                         if isinstance(widget, QPlainTextEdit):
+        #                                                 return widget #return matching plain text edit
+        #         return None  # Return None if not found
+        
+        def update_view(self):
+                self.appointmentGUI_layout.removeWidget(self.notes_view)
+                self.appointmentGUI_layout.addWidget(self.create_notes_view())

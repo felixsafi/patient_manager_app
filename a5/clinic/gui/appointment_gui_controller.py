@@ -25,20 +25,24 @@ class agController():
             self.ag.list_of_notes = passed_list
 
     def get_notes_from_file(self):
-        if self.controller.login_status: #skip dynamic set up on initial creating to prevent error
+        if self.controller.login_status == 1: #skip dynamic set up on initial creating to prevent error
                 self.ag.list_of_notes = self.controller.list_notes()
+        else:
+            self.ag.list_of_notes = []
     
             
 
     def list_all(self):
         """refresh view and unpdate to the current list of notes"""
         self.setUp()
-        self.ag.create_notes_view()
+        for note in self.ag.list_of_notes:
+            print(note)
+        self.ag.update_view()
 
     def search_notes(self, search_text):
         self.ag.list_of_notes = self.controller.retrieve_notes(search_text)
         self.setUp(self.ag.list_of_notes)
-        self.ag.create_notes_view()
+        self.ag.update_view()
 
     def save_edits_deletes(self):
         """
@@ -52,7 +56,7 @@ class agController():
 
         self.get_notes_from_file #update to get notes list without deleted notes
 
-        for note in self.ag.all_notes: #update all changed notes
+        for note in self.ag.list_of_notes: #update all changed notes
             note_editor = self.ag.get_edit_window(f"note_text_at({note.note_number})")
             entered_text = note_editor.toPlainText() #normalize text from editor
             if note.text != entered_text:
