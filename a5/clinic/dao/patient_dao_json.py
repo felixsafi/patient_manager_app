@@ -77,7 +77,7 @@ class PatientDAOJSON(PatientDAO):
         if (self.current_patient is not None) and (patient_to_update == self.current_patient):
         #trying to update the current patient
             raise IllegalOperationException()
-        if (patient.phn!=key) and (self.search_patient(patient.phn) is not None):
+        if (patient.phn!=key) and (self.search_patient(patient.phn) is None):
         #trying to update to a taken phn
             raise IllegalOperationException()
 
