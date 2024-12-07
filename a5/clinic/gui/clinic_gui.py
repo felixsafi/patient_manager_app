@@ -28,24 +28,14 @@ class ClinicGUI(QMainWindow):
         self.appointment_gui = AppointmentGUI(self.controller)
         self.main_window_layout.addWidget(self.appointment_gui)
 
-        self.appt_window_index = QStackedLayout.indexOf(self.appointment_gui)
-
         #connect window changing signals
         self.login_gui.login_success_signal.connect(self.run_main_menu_page) #page change on success login
         self.main_menu_gui.logout_signal.connect(self.run_login_page) #page change on success logout
-        self.main_menu_gui.start_appoint_signal.connect(self.reset_window) #page change to start appt
+        self.main_menu_gui.start_appoint_signal.connect(self.run_appointment_page)
         self.login_gui.exit_app_signal.connect(self.run_quit) #quit from login
-        self.connect_appt_signals()
+        self.appointment_gui.exit_appointment_signal.connect(self.run_main_menu_page) #page change on success exit appointment
         #create style elements dictionaries
         self.create_style_dict(0.4) #pick from 0.1(small)->0.9(big)
-    
-        
-    def connect_appt_signals(self):
-        self.appointment_gui.exit_appointment_signal.connect(self.run_main_menu_page) #page change on success exit appointment
-        self.appointment_gui.reset_appt_window_signal.connect(self.reset_window)
-
-        
-
 
         #connect notification signals
         # self.main_menu_gui.success_notification_signal
@@ -53,7 +43,6 @@ class ClinicGUI(QMainWindow):
         # self.login_gui.login_failed_signal
         # self.appointment_success_notification_signal 
         #self.appointment_gui.error_notification_signal
-
 
         self.main_window_layout.setCurrentWidget(self.login_gui) #open to login view on start up
 
@@ -73,23 +62,11 @@ class ClinicGUI(QMainWindow):
 
     def run_appointment_page(self):
         #set the user name that logged in
-        self.appointment_gui.list_notes_signal.emit()
+        self.appointment_gui.list_all_notes_signal.emit()
         self.appointment_gui.appointment_with_label.setText(f"<span style='color : {self.design_ref_dict["secondaryText"]};'>In appointment with: </span> {self.controller.get_current_patient().name}") 
         self.setWindowTitle("Appointment Page") #Set main window title
-        self.main_window_layout.setCurrentWidget(QStackedLayout.indexOf(self.appointment_gui))
+        self.main_window_layout.setCurrentWidget(self.appointment_gui)
         self.adjustSize() #Adjust size to fit the widgets
-
-    def reset_window(self):
-        if self.appointment_gui:
-            # Remove the old widget and schedule it for deletion
-            self.main_window_layout.removeWidget(self.appointment_gui)
-            self.appointment_gui.deleteLater()
-            self.appointment_gui = None
-
-        self.appointment_gui = AppointmentGUI(self.controller)
-        self.connect_appt_signals()
-        self.main_window_layout.addWidget(self.appointment_gui)
-        self.run_appointment_page
 
     def run_quit(self):
         QApplication.quit()

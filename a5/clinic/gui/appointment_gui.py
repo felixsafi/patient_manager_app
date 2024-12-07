@@ -103,8 +103,9 @@ class AppointmentGUI(QWidget):
                 note_function_buttons_layout.addWidget(self.list_all_notes_button)
                 self.appointmentGUI_layout.addLayout(note_function_buttons_layout)
 
-                self.notes_view = self.create_notes_view()
-                #self.appointmentGUI_layout.addWidget(self.notes_view)
+                self.text_box = QPlainTextEdit() #empty text box
+
+                self.appointmentGUI_layout.addWidget(self.text_box)
 
                 self.setLayout(self.appointmentGUI_layout)
 
@@ -122,22 +123,22 @@ class AppointmentGUI(QWidget):
         def refresh_text(self):
                 pass
                 
-        def create_notes_view(self, create=False):
-                """make a scrollable view area with notes added"""
+        # def create_notes_view(self, create=False):
+        #         """make a scrollable view area with notes added"""
                 
-                #scrolling_layout = QLabel("appointment with: defualt")
+        #         #scrolling_layout = QLabel("appointment with: defualt")
 
-                scrolling_layout = QScrollArea() #scrollable section
-                scrolling_layout.setWidgetResizable(True) #adjustable for adding many notes
-                scrolling_layout.setObjectName("notesView") #name for styling purposes
+        #         scrolling_layout = QScrollArea() #scrollable section
+        #         scrolling_layout.setWidgetResizable(True) #adjustable for adding many notes
+        #         scrolling_layout.setObjectName("notesView") #name for styling purposes
 
-                #main widg for the notes view section
-                main_notes_obj = QWidget() #create widget object for the view
-                main_notes_view = QVBoxLayout(main_notes_obj) 
-                main_notes_view.setSpacing(40) #space out from other elements
+        #         #main widg for the notes view section
+        #         main_notes_obj = QWidget() #create widget object for the view
+        #         main_notes_view = QVBoxLayout(main_notes_obj) 
+        #         main_notes_view.setSpacing(40) #space out from other elements
 
-                self.edit_field_dictionary.clear()
-                self.delete_buttons_dictionary.clear()
+        #         self.edit_field_dictionary.clear()
+        #         self.delete_buttons_dictionary.clear()
 
 
 # if create:
