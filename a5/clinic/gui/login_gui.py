@@ -12,6 +12,8 @@ from PyQt6.QtWidgets import(
 class LoginGUI(QWidget):
         login_success_signal = pyqtSignal(str)
         login_failed_signal = pyqtSignal(str)
+        exit_app_signal = pyqtSignal(str)
+        
 
         def __init__(self, controller):
                 super().__init__()
@@ -43,12 +45,17 @@ class LoginGUI(QWidget):
                 login_button = QPushButton("Login to App")
                 login_button.clicked.connect(self.attempt_login)
                 login_button.setObjectName("primaryButton")
+
+                quit_button = QPushButton("Quit App")
+                quit_button.clicked.connect(self.attempt_quit)
+                quit_button.setObjectName("primaryButton")
                 
                 #add items to the layout
                 loginGUI_layout.addWidget(instructions_label)
                 loginGUI_layout.addWidget(self.user_name_field)
                 loginGUI_layout.addWidget(self.password_field)
                 loginGUI_layout.addWidget(login_button)
+                loginGUI_layout.addWidget(quit_button)
 
                 #set up the layout
                 main_widget = QWidget() #Create class widgit
@@ -74,4 +81,7 @@ class LoginGUI(QWidget):
                 except InvalidLoginException as e: #catch and deal with failed attempt
                         self.login_failed_signal.emit("Invalid Credentials Entered") #emit if wrong creds
                 
+        def attempt_quit(self):
+                print("attempting to quit")
+                self.exit_app_signal.emit("exited successfully")
                 
