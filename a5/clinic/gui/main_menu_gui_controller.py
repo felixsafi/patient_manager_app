@@ -47,7 +47,7 @@ class mmgController():
                 self.selected_patient.address
                 ]
         else:
-            new_field_texts = ["phn", "name", "DD/MM/YYYY", "Phone Number", "Email", "Address"]
+            new_field_texts = ["PHN", "Name", "YYYY-MM-DD", "Phone Number", "Email", "Address"]
 
         i = 0
         for field in self.fields_to_change:
@@ -142,7 +142,7 @@ class mmgController():
             
             new_phn = self.mmg.phn_input.text() or (self.selected_patient.phn if (self.selected_patient is not None) else "") or (self.gen_new_phn())
             new_name = self.mmg.name_input.text() or (self.selected_patient.name if (self.selected_patient is not None) else "") or "no name provided"
-            new_birth_date = self.mmg.birthday_input.text() or (self.selected_patient.birth_date if (self.selected_patient is not None) else "") or "00/00/0000"
+            new_birth_date = self.mmg.birthday_input.text() or (self.selected_patient.birth_date if (self.selected_patient is not None) else "") or "0000-00-00"
             new_phone = self.mmg.phone_input.text() or (self.selected_patient.phone if (self.selected_patient is not None) else "") or "no phone provided"
             new_email = self.mmg.email_input.text() or (self.selected_patient.email if (self.selected_patient is not None) else "") or "no email provided"
             new_address = self.mmg.address_input.text() or (self.selected_patient.address if (self.selected_patient is not None) else "") or "no address provided"
