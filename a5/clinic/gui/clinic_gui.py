@@ -33,6 +33,7 @@ class ClinicGUI(QMainWindow):
         self.main_menu_gui.logout_signal.connect(self.run_login_page) #page change on success logout
         self.main_menu_gui.start_appoint_signal.connect(self.run_appointment_page) #page change to start appt
         self.appointment_gui.exit_appointment_signal.connect(self.run_main_menu_page) #page change on success exit appointment
+        self.login_gui.exit_app_signal.connect(self.run_quit) #quit from login
 
         #create style elements dictionaries
         self.create_style_dict(0.3) #pick from 0.1(small)->0.9(big)
@@ -70,6 +71,9 @@ class ClinicGUI(QMainWindow):
         self.setWindowTitle("Appointment Page") #Set main window title
         self.main_window_layout.setCurrentWidget(self.appointment_gui)
         self.adjustSize() #Adjust size to fit the widgets
+
+    def run_quit(self):
+        QApplication.quit()
 
     def create_style_dict(self, size_scale):
         self.design_ref_dict = { 

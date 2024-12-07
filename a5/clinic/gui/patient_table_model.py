@@ -78,7 +78,7 @@ class PatientTableModel(QAbstractTableModel):
             return 0
 
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
-        headers = ['Personal Health Number', 'Name', 'Birth Date', 'Phone', 'Email', 'Address']
+        headers = ['PHN', 'Name', 'Birth Date', 'Phone', 'Email', 'Address']
         if orientation == Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
             return '%s' % headers[section]
         return super().headerData(section, orientation, role)
